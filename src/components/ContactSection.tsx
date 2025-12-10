@@ -7,22 +7,16 @@ import { toast } from "@/hooks/use-toast";
 
 const contactMethods = [
   {
+    icon: Mail,
+    label: "Email",
+    value: "mulalic71@gmail.com",
+    action: "mailto:mulalic71@gmail.com",
+  },
+  {
     icon: Linkedin,
     label: "LinkedIn Profile",
     value: "Connect on LinkedIn",
     action: "https://www.linkedin.com/in/davormulalic",
-  },
-  {
-    icon: Calendar,
-    label: "Business Consultation",
-    value: "Book a consultation",
-    action: "https://calendly.com/mulalic71",
-  },
-  {
-    icon: MessageSquare,
-    label: "Speaking & Advisory",
-    value: "Keynotes, workshops, and board advisory",
-    action: "https://calendly.com/mulalic71",
   },
 ];
 
