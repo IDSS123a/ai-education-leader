@@ -19,6 +19,7 @@ const industries = [
   "Education & EdTech",
   "Finance & Banking",
   "Manufacturing",
+  "Sales",
 ];
 
 export function HeroSection() {
