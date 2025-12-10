@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import bookAiTeacherCompanion from "@/assets/book-ai-teacher-companion.jpg";
 import bookPromptEngineeringManual from "@/assets/book-prompt-engineering-manual.png";
@@ -9,6 +9,7 @@ import bookAiBusinessExcellence from "@/assets/book-ai-business-excellence.png";
 import bookAiSolvedProblems from "@/assets/book-ai-solved-problems.png";
 
 const amazonLink = "https://www.amazon.com/s?i=digital-text&rh=p_27%3ADavor%2BMulali%25C4%2587&s=relevancerank&text=Davor+Mulali%C4%87&ref=dp_byline_sr_ebooks_1";
+const paypalLink = "https://www.paypal.com/ncp/payment/FKMN5XAS97TEY";
 
 const books = [
   {
@@ -127,12 +128,20 @@ export function BooksSection() {
                     ))}
                   </div>
 
-                  <Button variant="outline" size="sm" className="w-full" asChild>
-                    <a href={amazonLink} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="w-4 h-4" />
-                      View on Amazon
-                    </a>
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1" asChild>
+                      <a href={amazonLink} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3 h-3" />
+                        Amazon
+                      </a>
+                    </Button>
+                    <Button variant="default" size="sm" className="flex-1" asChild>
+                      <a href={paypalLink} target="_blank" rel="noopener noreferrer">
+                        <ShoppingCart className="w-3 h-3" />
+                        Buy
+                      </a>
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             ))}
