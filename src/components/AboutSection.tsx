@@ -16,6 +16,9 @@ const competencies = [
   "Business Strategy & Sales Development",
   "Financial & Production Management",
   "Complex Problem Solving",
+  "Negotiation",
+  "Client Acquisition",
+  "New Market Penetration",
 ];
 
 const education = [
