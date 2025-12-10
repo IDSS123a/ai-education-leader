@@ -3,37 +3,45 @@ import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import bookAiTeacher from "@/assets/book-ai-teacher.jpg";
-import bookPromptEngineering from "@/assets/book-prompt-engineering.jpg";
-import bookAiBusiness from "@/assets/book-ai-business.jpg";
+import bookAiTeacherCompanion from "@/assets/book-ai-teacher-companion.jpg";
+import bookPromptEngineeringManual from "@/assets/book-prompt-engineering-manual.png";
+import bookAiBusinessExcellence from "@/assets/book-ai-business-excellence.png";
+import bookAiSolvedProblems from "@/assets/book-ai-solved-problems.png";
+
+const amazonLink = "https://www.amazon.com/s?i=digital-text&rh=p_27%3ADavor%2BMulali%25C4%2587&s=relevancerank&text=Davor+Mulali%C4%87&ref=dp_byline_sr_ebooks_1";
 
 const books = [
   {
+    title: "AI for Business and Personal Excellence",
+    subtitle: "Strategies for Growth and Productivity",
+    image: bookAiBusinessExcellence,
+    description:
+      "Applying AI strategies for business growth and personal productivity enhancement",
+    topics: ["Business automation", "Personal productivity", "AI strategy"],
+  },
+  {
     title: "The AI Teacher's Companion",
     subtitle: "Integrating Artificial Intelligence in Your Classroom",
-    image: bookAiTeacher,
+    image: bookAiTeacherCompanion,
     description:
       "Practical guide for educators to effectively integrate AI tools into daily teaching practice",
-    topics: ["AI tools for teachers", "Lesson planning with AI", "Ethical considerations", "Practical examples"],
-    status: "Published",
+    topics: ["AI tools for teachers", "Lesson planning with AI", "Practical examples"],
   },
   {
     title: "Mastering Prompt Engineering",
     subtitle: "A Practical Manual for Advanced Non-Coders",
-    image: bookPromptEngineering,
+    image: bookPromptEngineeringManual,
     description:
       "Comprehensive guide to prompt engineering for educators and professionals without coding background",
-    topics: ["Advanced prompting techniques", "Educational applications", "Workflow automation", "Best practices"],
-    status: "Published",
+    topics: ["Prompting techniques", "Educational applications", "Best practices"],
   },
   {
-    title: "AI for Business and Personal Excellence",
-    subtitle: "Strategies for Growth and Productivity",
-    image: bookAiBusiness,
+    title: "AI Solved Business Problems",
+    subtitle: "A Manager's Workbook",
+    image: bookAiSolvedProblems,
     description:
-      "Applying AI strategies for business growth and personal productivity enhancement",
-    topics: ["Business automation", "Personal productivity", "AI strategy", "Implementation frameworks"],
-    status: "Coming Soon",
+      "Practical workbook for managers to solve real business challenges using AI",
+    topics: ["Problem solving", "Management", "AI implementation"],
   },
 ];
 
@@ -79,7 +87,7 @@ export function BooksSection() {
           </div>
 
           {/* Books Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {books.map((book, index) => (
               <motion.div
                 key={index}
@@ -95,48 +103,36 @@ export function BooksSection() {
                     alt={book.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  {/* Status Badge */}
-                  <div className="absolute top-4 right-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        book.status === "Published"
-                          ? "bg-accent text-accent-foreground"
-                          : "bg-accent-amber text-accent-amber-foreground"
-                      }`}
-                    >
-                      {book.status}
-                    </span>
-                  </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-foreground mb-1">
+                <div className="p-5">
+                  <h3 className="text-lg font-bold text-foreground mb-1 line-clamp-2">
                     {book.title}
                   </h3>
-                  <p className="text-sm text-primary mb-3">{book.subtitle}</p>
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <p className="text-xs text-primary mb-2">{book.subtitle}</p>
+                  <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
                     {book.description}
                   </p>
 
                   {/* Topics */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {book.topics.slice(0, 3).map((topic, i) => (
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {book.topics.slice(0, 2).map((topic, i) => (
                       <span
                         key={i}
-                        className="px-2 py-1 bg-secondary text-secondary-foreground text-xs rounded-md"
+                        className="px-2 py-0.5 bg-secondary text-secondary-foreground text-xs rounded-md"
                       >
                         {topic}
                       </span>
                     ))}
                   </div>
 
-                  {book.status === "Published" && (
-                    <Button variant="outline" size="sm" className="w-full">
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <a href={amazonLink} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="w-4 h-4" />
-                      Learn More
-                    </Button>
-                  )}
+                      View on Amazon
+                    </a>
+                  </Button>
                 </div>
               </motion.div>
             ))}
