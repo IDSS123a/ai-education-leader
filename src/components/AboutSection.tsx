@@ -178,7 +178,7 @@ export function AboutSection() {
               >
                 <h3 className="text-lg font-semibold text-foreground mb-4">Standards & Certifications</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["ISO 9001:2015", "HACCP", "FSC", "PEFC", "ERP Implementation"].map((cert, index) => (
+                  {["ISO 9001:2015", "HACCP", "FSC", "PEFC", "ERP Implementation", "KAIZEN", "LEAN", "IAS"].map((cert, index) => (
                     <span
                       key={index}
                       className="px-3 py-1.5 bg-accent/10 text-accent rounded-full text-sm font-medium"
