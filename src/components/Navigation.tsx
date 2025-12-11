@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Menu, X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import davorLogo from "@/assets/davor-logo.png";
+
 
 const navItems = [
   { label: "Home", href: "#home" },
@@ -39,17 +39,8 @@ export function Navigation() {
     >
       <nav className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
-          <a href="#home" className="flex items-center gap-3">
-            <img
-              src={davorLogo}
-              alt="Davor Mulalić"
-              className="w-10 h-10 lg:w-12 lg:h-12 rounded-full object-cover"
-            />
-            <span className="font-semibold text-foreground hidden sm:block">
-              Davor Mulalić
-            </span>
-          </a>
+          {/* Navigation spacer */}
+          <div className="w-10 lg:w-12" />
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
@@ -73,7 +64,7 @@ export function Navigation() {
               </a>
             </Button>
             <Button size="sm" asChild>
-              <a href="https://calendly.com/mulalic71" target="_blank" rel="noopener noreferrer">
+              <a href="https://davormulali.zohobookings.eu/#/253150000000046052" target="_blank" rel="noopener noreferrer">
                 Book Consultation
               </a>
             </Button>
@@ -115,7 +106,7 @@ export function Navigation() {
                   </a>
                 </Button>
                 <Button size="sm" className="w-full" asChild>
-                  <a href="https://calendly.com/mulalic71" target="_blank" rel="noopener noreferrer">
+                  <a href="https://davormulali.zohobookings.eu/#/253150000000046052" target="_blank" rel="noopener noreferrer">
                     Book Consultation
                   </a>
                 </Button>
