@@ -22,6 +22,3 @@ site_url = "http://127.0.0.1:3000"
 
 [functions.request-cv]
 verify_jwt = false
-
-[functions.process-cv-request]
-verify_jwt = false

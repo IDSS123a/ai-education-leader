@@ -98,10 +98,18 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
               </motion.div>
               <h3 className="text-xl font-semibold mb-2">Request Submitted!</h3>
-              <p className="text-muted-foreground mb-6">
-                Your request has been sent to Davor for approval. You will receive an email notification once it's reviewed.
+              <p className="text-muted-foreground mb-4">
+                Your request has been sent to Davor for approval.
               </p>
-              <Button onClick={() => handleOpenChange(false)}>Close</Button>
+              <p className="text-sm text-muted-foreground mb-6">
+                Check your request status at <a href="/cv-status" className="text-primary underline">/cv-status</a>
+              </p>
+              <div className="flex gap-2 justify-center">
+                <Button variant="outline" onClick={() => handleOpenChange(false)}>Close</Button>
+                <a href="/cv-status">
+                  <Button>Check Status</Button>
+                </a>
+              </div>
             </motion.div>
           ) : (
             <motion.div
