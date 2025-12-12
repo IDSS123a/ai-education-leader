@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CVRequestDialog } from "@/components/CVRequestDialog";
 import davorProfile from "@/assets/davor-profile-real.png";
 
 const highlights = [
@@ -121,12 +122,12 @@ export function HeroSection() {
                   <ArrowRight className="w-5 h-5" />
                 </a>
               </Button>
-              <Button variant="heroOutline" size="xl" asChild>
-                <a href="/Davor_Mulalic_CV.pdf" download>
+              <CVRequestDialog>
+                <Button variant="heroOutline" size="xl">
                   <Download className="w-5 h-5" />
                   Download CV
-                </a>
-              </Button>
+                </Button>
+              </CVRequestDialog>
             </motion.div>
           </motion.div>
 
