@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Menu, X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
+import { ConsultationDialog } from "@/components/ConsultationDialog";
 
 const navItems = [
   { label: "Home", href: "#home" },
@@ -63,11 +63,9 @@ export function Navigation() {
                 Download CV
               </a>
             </Button>
-            <Button size="sm" asChild>
-              <a href="https://davormulali.zohobookings.eu/#/253150000000046052" target="_blank" rel="noopener noreferrer">
-                Book Consultation
-              </a>
-            </Button>
+            <ConsultationDialog
+              trigger={<Button size="sm">Book Consultation</Button>}
+            />
           </div>
 
           {/* Mobile Menu Button */}
@@ -105,11 +103,9 @@ export function Navigation() {
                     Download CV
                   </a>
                 </Button>
-                <Button size="sm" className="w-full" asChild>
-                  <a href="https://davormulali.zohobookings.eu/#/253150000000046052" target="_blank" rel="noopener noreferrer">
-                    Book Consultation
-                  </a>
-                </Button>
+                <ConsultationDialog
+                  trigger={<Button size="sm" className="w-full">Book Consultation</Button>}
+                />
               </div>
             </div>
           </motion.div>
