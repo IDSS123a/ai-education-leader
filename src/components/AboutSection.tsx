@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import awardCeremony from "@/assets/award-ceremony.jpg";
 import speakingEvent from "@/assets/speaking-event.jpg";
+import ImageLightbox from "./ImageLightbox";
 
 const stats = [
   { value: "25+", label: "Years Experience" },
@@ -31,6 +32,7 @@ const education = [
 export function AboutSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [lightboxImage, setLightboxImage] = useState<{ src: string; alt: string } | null>(null);
 
   return (
     <section id="about" className="py-20 lg:py-32 bg-card">
@@ -155,11 +157,14 @@ export function AboutSection() {
                 className="relative group"
               >
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="relative overflow-hidden rounded-2xl aspect-[4/3]">
+                  <button
+                    onClick={() => setLightboxImage({ src: awardCeremony, alt: "Receiving Business Excellence Award" })}
+                    className="relative overflow-hidden rounded-2xl aspect-[4/3] cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  >
                     <img
                       src={awardCeremony}
                       alt="Receiving Business Excellence Award"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
                     <div className="absolute bottom-3 left-3 right-3">
@@ -167,12 +172,15 @@ export function AboutSection() {
                         Award Ceremony
                       </span>
                     </div>
-                  </div>
-                  <div className="relative overflow-hidden rounded-2xl aspect-[4/3]">
+                  </button>
+                  <button
+                    onClick={() => setLightboxImage({ src: speakingEvent, alt: "Keynote Speaker at Business Leaders Summit" })}
+                    className="relative overflow-hidden rounded-2xl aspect-[4/3] cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  >
                     <img
                       src={speakingEvent}
                       alt="Keynote Speaker at Business Leaders Summit"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
                     <div className="absolute bottom-3 left-3 right-3">
@@ -180,7 +188,7 @@ export function AboutSection() {
                         Keynote Speaker
                       </span>
                     </div>
-                  </div>
+                  </button>
                 </div>
                 <div className="mt-3 text-center">
                   <p className="text-sm text-muted-foreground">
@@ -236,6 +244,13 @@ export function AboutSection() {
           </div>
         </motion.div>
       </div>
+
+      <ImageLightbox
+        src={lightboxImage?.src || ""}
+        alt={lightboxImage?.alt || ""}
+        isOpen={!!lightboxImage}
+        onClose={() => setLightboxImage(null)}
+      />
     </section>
   );
 }
