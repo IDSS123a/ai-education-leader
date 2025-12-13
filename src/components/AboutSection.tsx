@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
+import awardCeremony from "@/assets/award-ceremony.jpg";
+import speakingEvent from "@/assets/speaking-event.jpg";
 
 const stats = [
   { value: "25+", label: "Years Experience" },
@@ -144,6 +146,48 @@ export function AboutSection() {
                   </motion.div>
                 ))}
               </div>
+
+              {/* Achievement Images */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 0.85 }}
+                className="relative group"
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="relative overflow-hidden rounded-2xl aspect-[4/3]">
+                    <img
+                      src={awardCeremony}
+                      alt="Receiving Business Excellence Award"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <span className="text-xs font-medium text-primary bg-background/90 px-2 py-1 rounded-full">
+                        Award Ceremony
+                      </span>
+                    </div>
+                  </div>
+                  <div className="relative overflow-hidden rounded-2xl aspect-[4/3]">
+                    <img
+                      src={speakingEvent}
+                      alt="Keynote Speaker at Business Leaders Summit"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <span className="text-xs font-medium text-primary bg-background/90 px-2 py-1 rounded-full">
+                        Keynote Speaker
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Sustainable Development Business Leaders Award 2025
+                  </p>
+                </div>
+              </motion.div>
 
               {/* Languages & Skills */}
               <motion.div
