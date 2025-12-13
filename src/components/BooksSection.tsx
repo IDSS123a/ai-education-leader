@@ -75,7 +75,7 @@ export function BooksSection() {
               transition={{ delay: 0.3 }}
               className="text-3xl md:text-4xl font-bold text-foreground mb-4"
             >
-              Books on AI in Education
+              Books on AI in Business
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -83,7 +83,7 @@ export function BooksSection() {
               transition={{ delay: 0.4 }}
               className="text-muted-foreground max-w-2xl mx-auto"
             >
-              Sharing knowledge and practical insights to help educators embrace AI technology
+              Sharing knowledge and practical insights to help professionals leverage AI technology
             </motion.p>
           </div>
 
