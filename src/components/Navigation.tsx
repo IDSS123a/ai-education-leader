@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Menu, X, Download } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
 
@@ -55,14 +55,8 @@ export function Navigation() {
             ))}
           </div>
 
-          {/* CTA Buttons */}
-          <div className="hidden lg:flex items-center gap-3">
-            <Button variant="outline" size="sm" asChild>
-              <a href="/Davor_Mulalic_CV.pdf" download>
-                <Download className="w-4 h-4" />
-                Download CV
-              </a>
-            </Button>
+          {/* CTA Button */}
+          <div className="hidden lg:flex items-center">
             <ConsultationDialog
               trigger={<Button size="sm">Book Consultation</Button>}
             />
@@ -96,13 +90,7 @@ export function Navigation() {
                   {item.label}
                 </a>
               ))}
-              <div className="px-4 pt-4 space-y-2 border-t border-border mt-4">
-                <Button variant="outline" size="sm" className="w-full" asChild>
-                  <a href="/Davor_Mulalic_CV.pdf" download>
-                    <Download className="w-4 h-4" />
-                    Download CV
-                  </a>
-                </Button>
+              <div className="px-4 pt-4 border-t border-border mt-4">
                 <ConsultationDialog
                   trigger={<Button size="sm" className="w-full">Book Consultation</Button>}
                 />
