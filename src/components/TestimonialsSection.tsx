@@ -5,22 +5,34 @@ import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 
 const testimonials = [
   {
-    text: "Davor's strategic vision and expertise in digital transformation delivered exceptional results. His leadership contributed to significant operating income growth and operational excellence across our organization.",
-    author: "Board Member",
-    organization: "Global Manufacturing Group",
-    source: "LinkedIn Recommendation",
+    text: "Davor has proven to be a major asset to my holding company. He has a proven ability to resourcefully manage and prioritize multiple projects simultaneously, with his high level of integrity, connectedness, persistence and going beyond the call of duty. Due to his commitment, a 1 billion $ worth project was extended to the next period of ten years.",
+    author: "Daniel Kanu",
+    organization: "DIK International Limited, Nigeria",
+    source: "Managing Director",
   },
   {
-    text: "A visionary executive who combines deep business acumen with cutting-edge AI knowledge. His ability to drive growth while building strong teams is remarkable.",
-    author: "Managing Partner",
-    organization: "Investment Firm",
-    source: "Professional Reference",
+    text: "Davor is an enthusiastic supporter of the team mission and takes great pride in problem solving. He is assertive and very conscientious. He also has a very positive attitude and welcomes challenges. I strongly recommend him as he would be a valuable asset to any organization.",
+    author: "James A. Gomez",
+    organization: "USAID Business Finance",
+    source: "Chief Operating Officer",
   },
   {
-    text: "Under Davor's leadership, we achieved 673% net profit growth. His strategic planning and operational expertise transformed our business performance.",
-    author: "CEO",
-    organization: "International Trade Company",
-    source: "LinkedIn Recommendation",
+    text: "Davor significantly contributed to the development of our regional office operations as well as the overall business development. He proved to be an extremely useful team member, a loyal and capable manager even when difficult decisions had to be made.",
+    author: "Nusret Čaušević",
+    organization: "LOK Microcredit Foundation, Sarajevo",
+    source: "General Director",
+  },
+  {
+    text: "Davor's strongest assets to an organization are his willingness to work hard at varying tasks even ones not part of his job description, ability to work with diverse ethnic groups, interest in computer graphic design and sense of humor.",
+    author: "Laura Brodrick",
+    organization: "Danish Refugee Council",
+    source: "RADS Project Manager",
+  },
+  {
+    text: "Davor proved himself as a person capable of handling the most complex tasks of management, negotiation and contracting of business activities. He is a trustworthy person with a pronounced team approach to work, able to start business on his own initiative.",
+    author: "Stipe Hrkać",
+    organization: "Hospitalija Trgovina, Croatia",
+    source: "Director",
   },
 ];
 
