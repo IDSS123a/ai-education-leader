@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, XCircle, Clock, RefreshCw, Shield, Mail, User, Calendar } from "lucide-react";
+import { CheckCircle, XCircle, Clock, RefreshCw, Shield, Mail, User, Calendar, Video, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -17,21 +18,35 @@ interface CVRequest {
   processed_at: string | null;
 }
 
+interface ConsultationRequest {
+  id: string;
+  name: string;
+  email: string;
+  message: string | null;
+  status: string;
+  created_at: string;
+  confirmed_at: string | null;
+}
+
 export default function Admin() {
-  const [requests, setRequests] = useState<CVRequest[]>([]);
+  const [cvRequests, setCvRequests] = useState<CVRequest[]>([]);
+  const [consultations, setConsultations] = useState<ConsultationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
 
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("cv_requests")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const [cvResult, consultResult] = await Promise.all([
+        supabase.from("cv_requests").select("*").order("created_at", { ascending: false }),
+        supabase.from("consultation_requests").select("*").order("created_at", { ascending: false })
+      ]);
 
-      if (error) throw error;
-      setRequests(data || []);
+      if (cvResult.error) throw cvResult.error;
+      if (consultResult.error) throw consultResult.error;
+      
+      setCvRequests(cvResult.data || []);
+      setConsultations(consultResult.data || []);
     } catch (error: any) {
       console.error("Error fetching requests:", error);
       toast({
@@ -48,7 +63,7 @@ export default function Admin() {
     fetchRequests();
   }, []);
 
-  const handleAction = async (token: string, action: "approve" | "reject") => {
+  const handleCVAction = async (token: string, action: "approve" | "reject") => {
     setProcessing(token);
     try {
       const { error } = await supabase
@@ -63,7 +78,7 @@ export default function Admin() {
 
       toast({
         title: action === "approve" ? "Approved!" : "Rejected",
-        description: `Request has been ${action === "approve" ? "approved" : "rejected"}.`,
+        description: `CV request has been ${action === "approve" ? "approved" : "rejected"}.`,
       });
 
       fetchRequests();
@@ -79,7 +94,39 @@ export default function Admin() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const handleConsultationAction = async (id: string, action: "confirm" | "complete") => {
+    setProcessing(id);
+    try {
+      const updateData = action === "confirm" 
+        ? { status: "confirmed", confirmed_at: new Date().toISOString() }
+        : { status: "completed" };
+
+      const { error } = await supabase
+        .from("consultation_requests")
+        .update(updateData)
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: action === "confirm" ? "Confirmed!" : "Completed!",
+        description: `Consultation has been marked as ${action === "confirm" ? "confirmed" : "completed"}.`,
+      });
+
+      fetchRequests();
+    } catch (error: any) {
+      console.error("Error processing consultation:", error);
+      toast({
+        title: "Error",
+        description: "Failed to process consultation",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const getCVStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
         return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/30"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>;
@@ -92,8 +139,24 @@ export default function Admin() {
     }
   };
 
-  const pendingRequests = requests.filter(r => r.status === "pending");
-  const processedRequests = requests.filter(r => r.status !== "pending");
+  const getConsultationStatusBadge = (status: string) => {
+    switch (status) {
+      case "pending":
+        return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/30"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>;
+      case "confirmed":
+        return <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/30"><Video className="w-3 h-3 mr-1" /> Confirmed</Badge>;
+      case "completed":
+        return <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/30"><CheckCircle className="w-3 h-3 mr-1" /> Completed</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const pendingCVRequests = cvRequests.filter(r => r.status === "pending");
+  const processedCVRequests = cvRequests.filter(r => r.status !== "pending");
+  const pendingConsultations = consultations.filter(r => r.status === "pending");
+  const activeConsultations = consultations.filter(r => r.status === "confirmed");
+  const completedConsultations = consultations.filter(r => r.status === "completed");
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -106,128 +169,305 @@ export default function Admin() {
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
               <Shield className="w-8 h-8 text-primary" />
-              CV Request Admin
+              Admin Panel
             </h1>
             <Button variant="outline" size="sm" onClick={fetchRequests} disabled={loading}>
               <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
               Refresh
             </Button>
           </div>
-          <p className="text-muted-foreground">Manage CV download requests</p>
+          <p className="text-muted-foreground">Manage CV requests and consultations</p>
         </motion.div>
 
-        {/* Pending Requests */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-yellow-500" />
-            Pending Requests ({pendingRequests.length})
-          </h2>
-          
-          {loading ? (
-            <Card className="p-8 text-center">
-              <RefreshCw className="w-8 h-8 animate-spin mx-auto text-muted-foreground" />
-              <p className="mt-2 text-muted-foreground">Loading...</p>
-            </Card>
-          ) : pendingRequests.length === 0 ? (
-            <Card className="p-8 text-center">
-              <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-2" />
-              <p className="text-muted-foreground">No pending requests</p>
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              <AnimatePresence>
-                {pendingRequests.map((request) => (
-                  <motion.div
-                    key={request.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -100 }}
-                    layout
-                  >
-                    <Card className="p-4 hover:shadow-md transition-shadow">
+        <Tabs defaultValue="cv" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="cv" className="flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              CV Requests ({pendingCVRequests.length})
+            </TabsTrigger>
+            <TabsTrigger value="consultations" className="flex items-center gap-2">
+              <Video className="w-4 h-4" />
+              Consultations ({pendingConsultations.length})
+            </TabsTrigger>
+          </TabsList>
+
+          {/* CV Requests Tab */}
+          <TabsContent value="cv">
+            {/* Pending CV Requests */}
+            <section className="mb-8">
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-yellow-500" />
+                Pending Requests ({pendingCVRequests.length})
+              </h2>
+              
+              {loading ? (
+                <Card className="p-8 text-center">
+                  <RefreshCw className="w-8 h-8 animate-spin mx-auto text-muted-foreground" />
+                  <p className="mt-2 text-muted-foreground">Loading...</p>
+                </Card>
+              ) : pendingCVRequests.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-2" />
+                  <p className="text-muted-foreground">No pending requests</p>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  <AnimatePresence>
+                    {pendingCVRequests.map((request) => (
+                      <motion.div
+                        key={request.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: -100 }}
+                        layout
+                      >
+                        <Card className="p-4 hover:shadow-md transition-shadow">
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                {getCVStatusBadge(request.status)}
+                              </div>
+                              <div className="space-y-1">
+                                <p className="flex items-center gap-2 text-foreground">
+                                  <Mail className="w-4 h-4 text-muted-foreground" />
+                                  <span className="font-medium">{request.email}</span>
+                                </p>
+                                {request.name && (
+                                  <p className="flex items-center gap-2 text-muted-foreground">
+                                    <User className="w-4 h-4" />
+                                    {request.name}
+                                  </p>
+                                )}
+                                <p className="flex items-center gap-2 text-muted-foreground text-sm">
+                                  <Calendar className="w-4 h-4" />
+                                  {new Date(request.created_at).toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => handleCVAction(request.token, "approve")}
+                                disabled={processing === request.token}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                <CheckCircle className="w-4 h-4 mr-1" />
+                                Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleCVAction(request.token, "reject")}
+                                disabled={processing === request.token}
+                              >
+                                <XCircle className="w-4 h-4 mr-1" />
+                                Reject
+                              </Button>
+                            </div>
+                          </div>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
+            </section>
+
+            {/* CV History */}
+            <section>
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-muted-foreground" />
+                History ({processedCVRequests.length})
+              </h2>
+              
+              {processedCVRequests.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">No processed requests yet</p>
+                </Card>
+              ) : (
+                <div className="space-y-2">
+                  {processedCVRequests.map((request) => (
+                    <Card key={request.id} className="p-4 opacity-75">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            {getCVStatusBadge(request.status)}
+                            <span className="text-sm text-muted-foreground">
+                              {request.processed_at && new Date(request.processed_at).toLocaleString()}
+                            </span>
+                          </div>
+                          <p className="text-foreground">{request.email}</p>
+                          {request.name && <p className="text-sm text-muted-foreground">{request.name}</p>}
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </section>
+          </TabsContent>
+
+          {/* Consultations Tab */}
+          <TabsContent value="consultations">
+            {/* Pending Consultations */}
+            <section className="mb-8">
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-yellow-500" />
+                Pending Consultations ({pendingConsultations.length})
+              </h2>
+              
+              {loading ? (
+                <Card className="p-8 text-center">
+                  <RefreshCw className="w-8 h-8 animate-spin mx-auto text-muted-foreground" />
+                  <p className="mt-2 text-muted-foreground">Loading...</p>
+                </Card>
+              ) : pendingConsultations.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-2" />
+                  <p className="text-muted-foreground">No pending consultations</p>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  <AnimatePresence>
+                    {pendingConsultations.map((consultation) => (
+                      <motion.div
+                        key={consultation.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: -100 }}
+                        layout
+                      >
+                        <Card className="p-4 hover:shadow-md transition-shadow">
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                {getConsultationStatusBadge(consultation.status)}
+                              </div>
+                              <div className="space-y-1">
+                                <p className="flex items-center gap-2 text-foreground">
+                                  <User className="w-4 h-4 text-muted-foreground" />
+                                  <span className="font-medium">{consultation.name}</span>
+                                </p>
+                                <p className="flex items-center gap-2 text-foreground">
+                                  <Mail className="w-4 h-4 text-muted-foreground" />
+                                  {consultation.email}
+                                </p>
+                                {consultation.message && (
+                                  <p className="flex items-start gap-2 text-muted-foreground">
+                                    <MessageSquare className="w-4 h-4 mt-0.5" />
+                                    <span className="text-sm">{consultation.message}</span>
+                                  </p>
+                                )}
+                                <p className="flex items-center gap-2 text-muted-foreground text-sm">
+                                  <Calendar className="w-4 h-4" />
+                                  {new Date(consultation.created_at).toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => handleConsultationAction(consultation.id, "confirm")}
+                                disabled={processing === consultation.id}
+                                className="bg-blue-600 hover:bg-blue-700"
+                              >
+                                <CheckCircle className="w-4 h-4 mr-1" />
+                                Confirm
+                              </Button>
+                            </div>
+                          </div>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
+            </section>
+
+            {/* Active Consultations */}
+            <section className="mb-8">
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <Video className="w-5 h-5 text-blue-500" />
+                Confirmed ({activeConsultations.length})
+              </h2>
+              
+              {activeConsultations.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">No confirmed consultations</p>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {activeConsultations.map((consultation) => (
+                    <Card key={consultation.id} className="p-4 hover:shadow-md transition-shadow">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            {getStatusBadge(request.status)}
+                            {getConsultationStatusBadge(consultation.status)}
                           </div>
                           <div className="space-y-1">
                             <p className="flex items-center gap-2 text-foreground">
-                              <Mail className="w-4 h-4 text-muted-foreground" />
-                              <span className="font-medium">{request.email}</span>
+                              <User className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-medium">{consultation.name}</span>
                             </p>
-                            {request.name && (
-                              <p className="flex items-center gap-2 text-muted-foreground">
-                                <User className="w-4 h-4" />
-                                {request.name}
-                              </p>
-                            )}
+                            <p className="flex items-center gap-2 text-foreground">
+                              <Mail className="w-4 h-4 text-muted-foreground" />
+                              {consultation.email}
+                            </p>
                             <p className="flex items-center gap-2 text-muted-foreground text-sm">
                               <Calendar className="w-4 h-4" />
-                              {new Date(request.created_at).toLocaleString()}
+                              Confirmed: {consultation.confirmed_at && new Date(consultation.confirmed_at).toLocaleString()}
                             </p>
                           </div>
                         </div>
                         <div className="flex gap-2">
                           <Button
                             size="sm"
-                            onClick={() => handleAction(request.token, "approve")}
-                            disabled={processing === request.token}
+                            onClick={() => handleConsultationAction(consultation.id, "complete")}
+                            disabled={processing === consultation.id}
                             className="bg-green-600 hover:bg-green-700"
                           >
                             <CheckCircle className="w-4 h-4 mr-1" />
-                            Approve
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleAction(request.token, "reject")}
-                            disabled={processing === request.token}
-                          >
-                            <XCircle className="w-4 h-4 mr-1" />
-                            Reject
+                            Mark Complete
                           </Button>
                         </div>
                       </div>
                     </Card>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
-        </section>
+                  ))}
+                </div>
+              )}
+            </section>
 
-        {/* Processed Requests */}
-        <section>
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-muted-foreground" />
-            History ({processedRequests.length})
-          </h2>
-          
-          {processedRequests.length === 0 ? (
-            <Card className="p-8 text-center">
-              <p className="text-muted-foreground">No processed requests yet</p>
-            </Card>
-          ) : (
-            <div className="space-y-2">
-              {processedRequests.map((request) => (
-                <Card key={request.id} className="p-4 opacity-75">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        {getStatusBadge(request.status)}
-                        <span className="text-sm text-muted-foreground">
-                          {request.processed_at && new Date(request.processed_at).toLocaleString()}
-                        </span>
-                      </div>
-                      <p className="text-foreground">{request.email}</p>
-                      {request.name && <p className="text-sm text-muted-foreground">{request.name}</p>}
-                    </div>
-                  </div>
+            {/* Completed Consultations */}
+            <section>
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-muted-foreground" />
+                Completed ({completedConsultations.length})
+              </h2>
+              
+              {completedConsultations.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">No completed consultations yet</p>
                 </Card>
-              ))}
-            </div>
-          )}
-        </section>
+              ) : (
+                <div className="space-y-2">
+                  {completedConsultations.map((consultation) => (
+                    <Card key={consultation.id} className="p-4 opacity-75">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            {getConsultationStatusBadge(consultation.status)}
+                          </div>
+                          <p className="text-foreground">{consultation.name}</p>
+                          <p className="text-sm text-muted-foreground">{consultation.email}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </section>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
