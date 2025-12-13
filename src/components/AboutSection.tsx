@@ -29,10 +29,15 @@ const education = [
   { degree: "Doctor of Veterinary Medicine", institution: "Veterinary Faculty" },
 ];
 
+const galleryImages = [
+  { src: awardCeremony, alt: "Receiving Business Excellence Award", label: "Award Ceremony" },
+  { src: speakingEvent, alt: "Keynote Speaker at Business Leaders Summit", label: "Keynote Speaker" },
+];
+
 export function AboutSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
-  const [lightboxImage, setLightboxImage] = useState<{ src: string; alt: string } | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   return (
     <section id="about" className="py-20 lg:py-32 bg-card">
@@ -157,38 +162,25 @@ export function AboutSection() {
                 className="relative group"
               >
                 <div className="grid grid-cols-2 gap-4">
-                  <button
-                    onClick={() => setLightboxImage({ src: awardCeremony, alt: "Receiving Business Excellence Award" })}
-                    className="relative overflow-hidden rounded-2xl aspect-[4/3] cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                  >
-                    <img
-                      src={awardCeremony}
-                      alt="Receiving Business Excellence Award"
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-                    <div className="absolute bottom-3 left-3 right-3">
-                      <span className="text-xs font-medium text-primary bg-background/90 px-2 py-1 rounded-full">
-                        Award Ceremony
-                      </span>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setLightboxImage({ src: speakingEvent, alt: "Keynote Speaker at Business Leaders Summit" })}
-                    className="relative overflow-hidden rounded-2xl aspect-[4/3] cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                  >
-                    <img
-                      src={speakingEvent}
-                      alt="Keynote Speaker at Business Leaders Summit"
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-                    <div className="absolute bottom-3 left-3 right-3">
-                      <span className="text-xs font-medium text-primary bg-background/90 px-2 py-1 rounded-full">
-                        Keynote Speaker
-                      </span>
-                    </div>
-                  </button>
+                  {galleryImages.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setLightboxIndex(index)}
+                      className="relative overflow-hidden rounded-2xl aspect-[4/3] cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    >
+                      <img
+                        src={image.src}
+                        alt={image.alt}
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <span className="text-xs font-medium text-primary bg-background/90 px-2 py-1 rounded-full">
+                          {image.label}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
                 </div>
                 <div className="mt-3 text-center">
                   <p className="text-sm text-muted-foreground">
@@ -246,10 +238,11 @@ export function AboutSection() {
       </div>
 
       <ImageLightbox
-        src={lightboxImage?.src || ""}
-        alt={lightboxImage?.alt || ""}
-        isOpen={!!lightboxImage}
-        onClose={() => setLightboxImage(null)}
+        images={galleryImages}
+        currentIndex={lightboxIndex ?? 0}
+        isOpen={lightboxIndex !== null}
+        onClose={() => setLightboxIndex(null)}
+        onNavigate={(index) => setLightboxIndex(index)}
       />
     </section>
   );
