@@ -310,13 +310,13 @@ export const PortfolioSection = () => {
           className="text-center mb-16"
         >
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
-            Portfolio
+            World-Class Portfolio
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            AI-Powered Solutions
+            AI Solutions & Innovations
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            60 enterprise-grade AI solutions solving real business problems across 25+ industries with measurable ROI
+            Explore 40+ real-world AI implementations across 10+ industries. From full-scale web applications to high-impact prompt engineering solutions and strategic case studies.
           </p>
         </motion.div>
 

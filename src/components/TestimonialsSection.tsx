@@ -5,34 +5,40 @@ import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 
 const testimonials = [
   {
-    text: "Davor has proven to be a major asset to my holding company. He has a proven ability to resourcefully manage and prioritize multiple projects simultaneously, with his high level of integrity, connectedness, persistence and going beyond the call of duty. Due to his commitment, a 1 billion $ worth project was extended to the next period of ten years.",
+    text: "Davor stands out as an exceptional leader who leads by example rather than just authority. He is deeply organized and inspiring, never hesitating to work alongside his team to reach a goal. His open-minded approach fostered a culture where my ideas were not only heard but championed, pushing me to exceed my own expectations. He combines vast global experience with a genuine willingness to learn from his employees—a rare and motivating trait.",
+    author: "Bianca Badrov",
+    organization: "Blue Trade Ltd.",
+    source: "Digital Marketing Enthusiast",
+  },
+  {
+    text: "A major asset to our holding company, Davor demonstrated an exceptional ability to resourcefully manage and prioritize multiple high-stakes projects simultaneously. His integrity, connectedness, and persistence went far beyond the call of duty. Because of his unwavering commitment and strategic foresight, a critical $1 billion project was successfully extended for another ten-year period.",
     author: "Daniel Kanu",
     organization: "DIK International Limited, Nigeria",
     source: "Managing Director",
   },
   {
-    text: "Davor is an enthusiastic supporter of the team mission and takes great pride in problem solving. He is assertive and very conscientious. He also has a very positive attitude and welcomes challenges. I strongly recommend him as he would be a valuable asset to any organization.",
+    text: "Mr. Mulalić's greatest assets are his tireless work ethic and versatile skillset. He possesses a unique ability to bridge divides, working effectively with diverse ethnic groups in complex environments. Beyond his management capabilities, his technical skills in design and his uplifting sense of humor make him a unifying force within any organization.",
+    author: "Laura Brodrick",
+    organization: "Danish Refugee Council",
+    source: "Project Manager",
+  },
+  {
+    text: "Davor is an enthusiastic champion of the team's mission who takes immense pride in complex problem-solving. He is assertive yet conscientious, bringing a consistently positive attitude that drives results. His approach to business finance operations is characterized by a dedication to finding solutions where others see only obstacles.",
     author: "James A. Gomez",
-    organization: "USAID Business Finance",
+    organization: "USAID-Business Finance",
     source: "Chief Operating Officer",
   },
   {
-    text: "Davor significantly contributed to the development of our regional office operations as well as the overall business development. He proved to be an extremely useful team member, a loyal and capable manager even when difficult decisions had to be made.",
-    author: "Nusret Čaušević",
-    organization: "LOK Microcredit Foundation, Sarajevo",
-    source: "General Director",
-  },
-  {
-    text: "Davor's strongest assets to an organization are his willingness to work hard at varying tasks even ones not part of his job description, ability to work with diverse ethnic groups, interest in computer graphic design and sense of humor.",
-    author: "Laura Brodrick",
-    organization: "Danish Refugee Council",
-    source: "RADS Project Manager",
-  },
-  {
-    text: "Davor proved himself as a person capable of handling the most complex tasks of management, negotiation and contracting of business activities. He is a trustworthy person with a pronounced team approach to work, able to start business on his own initiative.",
+    text: "In handling the most complex management tasks, Mr. Mulalić has proven himself to be indispensable. He is a profoundly trustworthy professional with a collaborative team approach, yet he possesses the distinct capability to initiate and drive business independently. His strategic instincts allow him to navigate complex operational challenges with confidence.",
     author: "Stipe Hrkać",
-    organization: "Hospitalija Trgovina, Croatia",
+    organization: "Hospitalija Trgovina d.o.o.",
     source: "Director",
+  },
+  {
+    text: "I unreservedly recommend Mr. Davor Mulalić for any high-level management position. His tenure was defined by unwavering responsibility and reliability. He possesses a rare talent for efficiently optimizing human, material, and financial resources simultaneously, ensuring that organizational potential is fully maximized.",
+    author: "Nusret Čaušević",
+    organization: "LOK Microcredit Foundation",
+    source: "General Director",
   },
 ];
 
@@ -50,7 +56,7 @@ export function TestimonialsSection() {
   };
 
   return (
-    <section className="py-20 lg:py-32 bg-card">
+    <section id="references" className="py-20 lg:py-32 bg-card">
       <div className="container mx-auto px-4 lg:px-8">
         <motion.div
           ref={ref}
@@ -67,7 +73,7 @@ export function TestimonialsSection() {
               transition={{ delay: 0.2 }}
               className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4"
             >
-              Testimonials
+              References
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}

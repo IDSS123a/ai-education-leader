@@ -1,14 +1,14 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Download } from "lucide-react";
+import { ArrowRight, Download, Linkedin, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CVRequestDialog } from "@/components/CVRequestDialog";
 import davorProfile from "@/assets/davor-profile-real.png";
 
 const highlights = [
-  { metric: "€16M+", label: "Operating Income Growth" },
-  { metric: "25+", label: "Years Leadership Experience" },
-  { metric: "673%", label: "Net Profit Increase" },
-  { metric: "500+", label: "Professionals Mentored" },
+  { metric: "25+", label: "Years Experience" },
+  { metric: "€16M+", label: "Income Growth", sub: "33%" },
+  { metric: "673%", label: "Net Profit Inc." },
+  { metric: "€11M+", label: "Contracts Secured" },
 ];
 
 const industries = [
@@ -30,6 +30,19 @@ export function HeroSection() {
       className="min-h-screen flex items-center bg-hero pt-20 lg:pt-0"
     >
       <div className="container mx-auto px-4 lg:px-8 py-12 lg:py-20">
+        {/* Open for Mandates Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex justify-center mb-8"
+        >
+          <span className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent border border-accent/20 rounded-full text-sm font-medium">
+            <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+            Open to CEO/COO/Chief AI Mandates from 2026
+          </span>
+        </motion.div>
+
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Content */}
           <motion.div
@@ -38,23 +51,23 @@ export function HeroSection() {
             transition={{ duration: 0.6 }}
             className="order-2 lg:order-1"
           >
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium mb-6"
-            >
-              Executive Leader & AI Strategist
-            </motion.span>
-
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight"
+              transition={{ delay: 0.2 }}
+              className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-4 leading-tight"
             >
-              Davor Mulalić
+              Davor <span className="text-gradient">Mulalić</span>
             </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-xl md:text-2xl text-primary font-medium mb-4"
+            >
+              C-Level AI Leader • CEO & Managing Director
+            </motion.p>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -62,9 +75,8 @@ export function HeroSection() {
               transition={{ delay: 0.4 }}
               className="text-lg text-muted-foreground mb-6 max-w-xl leading-relaxed"
             >
-              CEO & Managing Director with a proven track record of driving growth, 
-              innovation, and operational excellence across multiple industries. 
-              Expert in AI Strategy & Digital Transformation.
+              Expert in AI strategy, digital transformation, and building high-performing teams. 
+              I bridge the gap between traditional leadership and AI innovation to create sustainable growth.
             </motion.p>
 
             {/* Industries */}
@@ -87,58 +99,61 @@ export function HeroSection() {
               ))}
             </motion.div>
 
-            {/* Key Metrics */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10"
+              className="flex flex-col sm:flex-row gap-4 mb-8"
             >
-              {highlights.map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.75 + index * 0.08 }}
-                  className="text-center"
-                >
-                  <div className="text-2xl md:text-3xl font-bold text-primary">
-                    {item.metric}
-                  </div>
-                  <div className="text-xs text-muted-foreground">{item.label}</div>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 }}
-              className="flex flex-col sm:flex-row gap-4"
-            >
-              <Button variant="hero" size="xl" asChild>
+              <Button size="lg" asChild className="gap-2">
                 <a href="#experience">
                   View Experience
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-4 h-4" />
                 </a>
               </Button>
               <CVRequestDialog>
-                <Button variant="heroOutline" size="xl">
-                  <Download className="w-5 h-5" />
+                <Button variant="outline" size="lg" className="gap-2">
+                  <Download className="w-4 h-4" />
                   Download CV
                 </Button>
               </CVRequestDialog>
             </motion.div>
+
+            {/* Connect Links */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+              className="flex items-center gap-4"
+            >
+              <span className="text-sm text-muted-foreground">Connect:</span>
+              <a
+                href="https://www.linkedin.com/in/davormulalic/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+              >
+                <Linkedin className="w-5 h-5" />
+                <span className="text-sm font-medium">LinkedIn</span>
+              </a>
+              <a
+                href="mailto:mulalic71@gmail.com"
+                className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+              >
+                <Mail className="w-5 h-5" />
+                <span className="text-sm font-medium">Email</span>
+              </a>
+            </motion.div>
           </motion.div>
 
-          {/* Right Content - Image */}
+          {/* Right Content - Image & Stats */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="order-1 lg:order-2 flex justify-center"
+            className="order-1 lg:order-2 flex flex-col items-center"
           >
-            <div className="relative">
+            <div className="relative mb-8">
               {/* Decorative elements */}
               <div className="absolute -inset-4 bg-gradient-to-br from-primary/20 via-accent/10 to-transparent rounded-full blur-2xl" />
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent rounded-full" />
@@ -151,19 +166,33 @@ export function HeroSection() {
                   className="w-full h-full object-cover"
                 />
               </div>
-
-              {/* Floating badge */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1 }}
-                className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-card px-6 py-3 rounded-full shadow-lg border border-border"
-              >
-                <span className="text-sm font-semibold text-primary">
-                  25+ Years Leadership
-                </span>
-              </motion.div>
             </div>
+
+            {/* Key Metrics */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9 }}
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-lg"
+            >
+              {highlights.map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.95 + index * 0.08 }}
+                  className="text-center bg-card p-4 rounded-xl border border-border"
+                >
+                  <div className="text-xl md:text-2xl font-bold text-primary">
+                    {item.metric}
+                  </div>
+                  {item.sub && (
+                    <div className="text-xs text-accent font-medium">{item.sub}</div>
+                  )}
+                  <div className="text-xs text-muted-foreground">{item.label}</div>
+                </motion.div>
+              ))}
+            </motion.div>
           </motion.div>
         </div>
       </div>

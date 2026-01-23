@@ -1,11 +1,17 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useState } from "react";
-import { Mail, Linkedin, Calendar, Send, MessageSquare } from "lucide-react";
+import { Mail, Linkedin, Phone, MapPin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 
 const contactMethods = [
+  {
+    icon: Phone,
+    label: "Phone",
+    value: "+387 (0)61 787 331",
+    action: "tel:+38761787331",
+  },
   {
     icon: Mail,
     label: "Email",
@@ -18,15 +24,18 @@ const contactMethods = [
     value: "Connect on LinkedIn",
     action: "https://www.linkedin.com/in/davormulalic",
   },
+  {
+    icon: MapPin,
+    label: "Location",
+    value: "Sarajevo, Bosnia and Herzegovina",
+    action: "https://www.google.com/maps/search/?api=1&query=Sarajevo%2C%20Bosnia%20and%20Herzegovina",
+  },
 ];
 
 const interestOptions = [
-  "Business Consulting",
-  "AI Strategy & Digital Transformation",
-  "Speaking Engagement",
   "Executive Advisory",
-  "Educational Leadership",
-  "Collaboration",
+  "AI Strategy Consulting",
+  "Speaking Engagement",
   "Other",
 ];
 
@@ -99,11 +108,8 @@ export function ContactSection() {
               initial={{ opacity: 0, x: -30 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ delay: 0.4 }}
-              className="lg:col-span-2 space-y-6"
+              className="lg:col-span-2 space-y-4"
             >
-              <h3 className="text-xl font-bold text-foreground mb-6">
-                Get in Touch
-              </h3>
               {contactMethods.map((method, index) => {
                 const Icon = method.icon;
                 return (
@@ -124,6 +130,19 @@ export function ContactSection() {
                   </a>
                 );
               })}
+
+              {/* Open for Mandates */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 0.6 }}
+                className="bg-accent/10 border border-accent/20 p-6 rounded-xl mt-6"
+              >
+                <h4 className="font-semibold text-foreground mb-2">Open for Mandates</h4>
+                <p className="text-sm text-muted-foreground">
+                  Available for CEO/COO/Chief AI positions from 2026. Let's discuss how I can contribute to your organization's growth.
+                </p>
+              </motion.div>
             </motion.div>
 
             {/* Contact Form */}
@@ -175,7 +194,7 @@ export function ContactSection() {
                       value={formData.organization}
                       onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
                       className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                      placeholder="School or company"
+                      placeholder="Company or organization"
                     />
                   </div>
                   <div>

@@ -7,9 +7,9 @@ import ImageLightbox from "./ImageLightbox";
 
 const stats = [
   { value: "25+", label: "Years Experience" },
-  { value: "€16M", label: "Operating Income Growth" },
+  { value: "€16M", label: "Operating Income" },
   { value: "90%", label: "Revenue Boost" },
-  { value: "1000+", label: "Professionals Led" },
+  { value: "500+", label: "Professionals Led" },
 ];
 
 const competencies = [
@@ -25,7 +25,7 @@ const competencies = [
 ];
 
 const education = [
-  { degree: "Master of International Business", institution: "Cambridge International Business Study" },
+  { degree: "Master of International Business", institution: "Online Business School" },
   { degree: "Doctor of Veterinary Medicine", institution: "Veterinary Faculty" },
 ];
 
@@ -78,8 +78,7 @@ export function AboutSection() {
             >
               <p className="text-lg text-muted-foreground leading-relaxed mb-6">
                 Executive Leader and expert in AI Strategy and Digital Transformation with over 25 years 
-                of experience driving growth, innovation, and operational excellence across multiple industries. 
-                In my roles as CEO and Managing Director, I have a proven track record of delivering strong 
+                of experience driving growth, innovation, and operational excellence. In my roles as CEO and Managing Director, I have a proven track record of delivering strong 
                 financial results, including a €16M (33%) increase in operating income and a 90% boost in revenue.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed mb-6">
@@ -87,11 +86,14 @@ export function AboutSection() {
                 leadership with AI-powered solutions, creating strategic roadmaps, implementing no-code AI tools, 
                 and enabling data-driven decision-making that accelerates sustainable growth.
               </p>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+              <p className="text-lg text-muted-foreground leading-relaxed mb-6">
                 A skilled negotiator and relationship builder, I have secured contracts exceeding €11M and 
                 cultivated long-term partnerships with key clients and suppliers. My initiatives have driven 
                 a 50% increase in employee engagement, demonstrating my ability to combine results-driven 
                 leadership with people-centered management.
+              </p>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                Beyond the boardroom, I am a devoted husband, proud father, and active philanthropist. Guided by personal values, I believe that empathy, meaningful relationships, and giving back to the community are essential for lasting professional and personal success. Today, I focus on helping organizations navigate the era of AI transformation—turning strategic vision into tangible business outcomes while fostering human-centered, future-ready leadership.
               </p>
 
               {/* Education */}
