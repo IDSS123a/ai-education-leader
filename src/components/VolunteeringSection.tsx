@@ -79,7 +79,7 @@ export function VolunteeringSection() {
               transition={{ delay: 0.3 }}
               className="text-3xl md:text-4xl font-bold text-foreground mb-4"
             >
-              Volunteering & Community
+              Volunteering & Leadership
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
