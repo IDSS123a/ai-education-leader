@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { cvRequestSchema } from "@/lib/validation";
+import { z } from "zod";
 
 interface CVRequestDialogProps {
   children: React.ReactNode;
@@ -31,20 +33,31 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.email || !formData.email.includes("@")) {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      });
-      return;
+    // Validate with Zod
+    try {
+      cvRequestSchema.parse(formData);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: err.errors[0].message,
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("request-cv", {
-        body: { email: formData.email, name: formData.name },
+      // Sanitize input before sending
+      const sanitizedData = {
+        email: formData.email.trim().toLowerCase(),
+        name: formData.name.trim() || null,
+      };
+      
+      const { error } = await supabase.functions.invoke("request-cv", {
+        body: sanitizedData,
       });
 
       if (error) throw error;
@@ -55,7 +68,6 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
         description: "You will receive an email once your request is reviewed.",
       });
     } catch (error: any) {
-      console.error("Error submitting CV request:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to submit request. Please try again.",

@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, XCircle, Clock, RefreshCw, Shield, Mail, User, Calendar, Video, MessageSquare } from "lucide-react";
+import { CheckCircle, XCircle, Clock, RefreshCw, Shield, Mail, User, Calendar, Video, MessageSquare, LogOut, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CVRequest {
   id: string;
@@ -29,12 +31,32 @@ interface ConsultationRequest {
 }
 
 export default function Admin() {
+  const navigate = useNavigate();
+  const { user, isAdmin, loading: authLoading, signOut } = useAuth();
   const [cvRequests, setCvRequests] = useState<CVRequest[]>([]);
   const [consultations, setConsultations] = useState<ConsultationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
 
+  // Redirect if not authenticated or not admin
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        navigate("/auth");
+      } else if (!isAdmin) {
+        toast({
+          title: "Access Denied",
+          description: "You don't have admin privileges.",
+          variant: "destructive",
+        });
+        navigate("/");
+      }
+    }
+  }, [user, isAdmin, authLoading, navigate]);
+
   const fetchRequests = async () => {
+    if (!isAdmin) return;
+    
     setLoading(true);
     try {
       const [cvResult, consultResult] = await Promise.all([
@@ -60,8 +82,10 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    fetchRequests();
-  }, []);
+    if (isAdmin) {
+      fetchRequests();
+    }
+  }, [isAdmin]);
 
   const handleCVAction = async (token: string, action: "approve" | "reject") => {
     setProcessing(token);
@@ -158,6 +182,24 @@ export default function Admin() {
   const activeConsultations = consultations.filter(r => r.status === "confirmed");
   const completedConsultations = consultations.filter(r => r.status === "completed");
 
+  // Loading state
+  if (authLoading || (!isAdmin && user)) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Not logged in - will redirect via useEffect
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
@@ -171,10 +213,18 @@ export default function Admin() {
               <Shield className="w-8 h-8 text-primary" />
               Admin Panel
             </h1>
-            <Button variant="outline" size="sm" onClick={fetchRequests} disabled={loading}>
-              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-              Refresh
-            </Button>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground hidden md:inline">
+                {user.email}
+              </span>
+              <Button variant="outline" size="sm" onClick={fetchRequests} disabled={loading}>
+                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+                Refresh
+              </Button>
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
           <p className="text-muted-foreground">Manage CV requests and consultations</p>
         </motion.div>

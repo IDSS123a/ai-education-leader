@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Video, Loader2 } from "lucide-react";
+import { consultationRequestSchema } from "@/lib/validation";
+import { z } from "zod";
 
 interface ConsultationDialogProps {
   trigger: React.ReactNode;
@@ -24,24 +26,32 @@ export function ConsultationDialog({ trigger }: ConsultationDialogProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.email) {
-      toast({
-        title: "Required fields",
-        description: "Please enter your name and email.",
-        variant: "destructive",
-      });
-      return;
+    // Validate with Zod
+    try {
+      consultationRequestSchema.parse(formData);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: err.errors[0].message,
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setLoading(true);
     try {
+      // Sanitize input before sending
+      const sanitizedData = {
+        name: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        message: formData.message.trim() || null,
+      };
+      
       const { error } = await supabase
         .from("consultation_requests")
-        .insert({
-          name: formData.name,
-          email: formData.email,
-          message: formData.message || null,
-        });
+        .insert(sanitizedData);
 
       if (error) throw error;
 
@@ -57,7 +67,6 @@ export function ConsultationDialog({ trigger }: ConsultationDialogProps) {
         setFormData({ name: "", email: "", message: "" });
       }, 1000);
     } catch (error: any) {
-      console.error("Error submitting request:", error);
       toast({
         title: "Error",
         description: "Failed to submit request. Please try again.",

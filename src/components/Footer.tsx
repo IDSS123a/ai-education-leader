@@ -1,6 +1,22 @@
 import { Linkedin, Download } from "lucide-react";
 import { CVRequestDialog } from "@/components/CVRequestDialog";
 import { Button } from "@/components/ui/button";
+import { forwardRef } from "react";
+
+// Forward ref button for DialogTrigger compatibility
+const CVButton = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(
+  (props, ref) => (
+    <button
+      ref={ref}
+      {...props}
+      className="flex items-center gap-2 px-4 py-2 bg-background/10 hover:bg-background/20 rounded-full transition-colors text-sm"
+    >
+      <Download className="w-4 h-4" />
+      Download CV
+    </button>
+  )
+);
+CVButton.displayName = "CVButton";
 
 const footerLinks = [
   { label: "About", href: "#about" },
@@ -49,10 +65,7 @@ export function Footer() {
             Connect
           </a>
           <CVRequestDialog>
-            <button className="flex items-center gap-2 px-4 py-2 bg-background/10 hover:bg-background/20 rounded-full transition-colors text-sm">
-              <Download className="w-4 h-4" />
-              Download CV
-            </button>
+            <CVButton />
           </CVRequestDialog>
         </div>
 
