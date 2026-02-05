@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { emailSchema } from "@/lib/validation";
+import { z } from "zod";
 
 export default function CVStatus() {
   const [email, setEmail] = useState("");
@@ -21,36 +23,43 @@ export default function CVStatus() {
   const handleCheck = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !email.includes("@")) {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      });
-      return;
+    // Validate with Zod
+    try {
+      emailSchema.parse(email);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: err.errors[0].message,
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setLoading(true);
     setStatus(null);
 
     try {
-      const { data, error } = await supabase
-        .from("cv_requests")
-        .select("status, name, created_at")
-        .eq("email", email)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const sanitizedEmail = email.trim().toLowerCase();
+      
+      // Use edge function for secure status check
+      const { data, error } = await supabase.functions.invoke("check-cv-status", {
+        body: { email: sanitizedEmail },
+      });
 
-      if (error) throw error;
+      if (error) {
+        throw new Error(error.message || "Failed to check status");
+      }
 
-      if (data) {
+      if (data && data.found) {
         setStatus({ found: true, ...data });
+      } else if (data && data.error) {
+        throw new Error(data.error);
       } else {
         setStatus({ found: false });
       }
     } catch (error: any) {
-      console.error("Error checking status:", error);
       toast({
         title: "Error",
         description: "Failed to check status. Please try again.",

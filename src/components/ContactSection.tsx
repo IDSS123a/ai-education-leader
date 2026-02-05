@@ -4,6 +4,8 @@ import { useRef, useState } from "react";
 import { Mail, Linkedin, Phone, MapPin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { contactFormSchema } from "@/lib/validation";
+import { z } from "zod";
 
 const contactMethods = [
   {
@@ -50,8 +52,23 @@ export function ContactSection() {
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate with Zod
+    try {
+      contactFormSchema.parse(formData);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: err.errors[0].message,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
     toast({
       title: "Message Sent!",
       description: "Thank you for reaching out. I'll get back to you soon.",
