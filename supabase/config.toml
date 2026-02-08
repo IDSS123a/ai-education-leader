@@ -25,3 +25,6 @@ verify_jwt = false
 
 [functions.check-cv-status]
 verify_jwt = false
+
+[functions.chat-assistant]
+verify_jwt = false
