@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
 
@@ -15,9 +15,32 @@ const navItems = [
   { label: "Contact", href: "#contact" },
 ];
 
+function useTheme() {
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const stored = localStorage.getItem("theme");
+    if (stored) return stored === "dark";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDark) {
+      root.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      root.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [isDark]);
+
+  return { isDark, toggle: () => setIsDark((v) => !v) };
+}
+
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isDark, toggle } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,8 +79,15 @@ export function Navigation() {
             ))}
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden lg:flex items-center">
+          {/* CTA + Theme Toggle */}
+          <div className="hidden lg:flex items-center gap-3">
+            <button
+              onClick={toggle}
+              className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             <ConsultationDialog
               trigger={<Button size="sm">Book Consultation</Button>}
             />
@@ -91,9 +121,16 @@ export function Navigation() {
                   {item.label}
                 </a>
               ))}
-              <div className="px-4 pt-4 border-t border-border mt-4">
+              <div className="px-4 pt-4 border-t border-border mt-4 flex items-center gap-3">
+                <button
+                  onClick={toggle}
+                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                >
+                  {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
                 <ConsultationDialog
-                  trigger={<Button size="sm" className="w-full">Book Consultation</Button>}
+                  trigger={<Button size="sm" className="flex-1">Book Consultation</Button>}
                 />
               </div>
             </div>
