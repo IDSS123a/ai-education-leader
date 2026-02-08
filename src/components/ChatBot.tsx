@@ -91,42 +91,52 @@ async function streamChat({
   }
 }
 
-// Simple markdown-like rendering
-function renderContent(text: string) {
+// Strip all markdown and render clean plain text
+function stripMarkdown(text: string): string {
   return text
+    // Remove headings (###, ##, #)
+    .replace(/^#{1,6}\s+/gm, "")
+    // Remove bold **text** or __text__
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/__(.*?)__/g, "$1")
+    // Remove italic *text* or _text_
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/(?<!\w)_(.*?)_(?!\w)/g, "$1")
+    // Remove inline code `text`
+    .replace(/`([^`]+)`/g, "$1")
+    // Remove code blocks ```text```
+    .replace(/```[\s\S]*?```/g, "")
+    // Remove links [text](url) → text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    // Remove images ![alt](url)
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    // Remove blockquotes >
+    .replace(/^>\s?/gm, "")
+    // Remove horizontal rules
+    .replace(/^[-*_]{3,}\s*$/gm, "")
+    // Clean up bullet markers (- or •) but keep the text
+    .replace(/^[-•]\s+/gm, "• ");
+}
+
+function renderContent(text: string) {
+  const clean = stripMarkdown(text);
+  return clean
     .split("\n")
     .map((line, i) => {
-      if (line.startsWith("- ") || line.startsWith("• ")) {
+      if (line.startsWith("• ")) {
         return (
           <li key={i} className="ml-4 list-disc text-sm leading-relaxed">
-            {renderInline(line.slice(2))}
+            {line.slice(2)}
           </li>
-        );
-      }
-      if (line.startsWith("**") && line.endsWith("**")) {
-        return (
-          <p key={i} className="font-semibold text-sm leading-relaxed">
-            {line.slice(2, -2)}
-          </p>
         );
       }
       if (line.trim() === "") return <br key={i} />;
       return (
         <p key={i} className="text-sm leading-relaxed">
-          {renderInline(line)}
+          {line}
         </p>
       );
     });
-}
-
-function renderInline(text: string) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
-  return parts.map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={i}>{part.slice(2, -2)}</strong>;
-    }
-    return part;
-  });
 }
 
 export function ChatBot() {
