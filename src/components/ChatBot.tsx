@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X, Send, Bot, User, Loader2 } from "lucide-react";
+import { X, Send, User, Loader2 } from "lucide-react";
+import { DMLogo } from "@/components/DMLogo";
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -230,7 +231,7 @@ export function ChatBot() {
             </motion.div>
           ) : (
             <motion.div key="open" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-              <MessageCircle className="w-5 h-5" />
+              <DMLogo size={28} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -251,8 +252,8 @@ export function ChatBot() {
           >
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Bot className="w-4 h-4 text-primary" />
+              <div className="w-8 h-8 flex items-center justify-center">
+                <DMLogo size={28} />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground">AI Assistant</p>
@@ -265,8 +266,8 @@ export function ChatBot() {
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {messages.length === 0 && (
                 <div className="text-center py-8 space-y-3">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                    <Bot className="w-6 h-6 text-primary" />
+                  <div className="w-12 h-12 flex items-center justify-center mx-auto">
+                    <DMLogo size={40} />
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Hi! I'm Davor's AI assistant. Ask me about his experience, books, portfolio, or anything else!
@@ -298,8 +299,8 @@ export function ChatBot() {
                   className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   {msg.role === "assistant" && (
-                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Bot className="w-3 h-3 text-primary" />
+                    <div className="w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <DMLogo size={20} />
                     </div>
                   )}
                   <div
@@ -323,8 +324,8 @@ export function ChatBot() {
 
               {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
                 <div className="flex gap-2 items-center">
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-3 h-3 text-primary" />
+                  <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
+                    <DMLogo size={20} />
                   </div>
                   <div className="bg-secondary px-3 py-2 rounded-xl rounded-bl-sm">
                     <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />

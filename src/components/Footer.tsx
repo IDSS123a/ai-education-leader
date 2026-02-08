@@ -1,6 +1,7 @@
 import { Linkedin, Download } from "lucide-react";
 import { CVRequestDialog } from "@/components/CVRequestDialog";
 import { Button } from "@/components/ui/button";
+import { DMLogo } from "@/components/DMLogo";
 import { forwardRef } from "react";
 
 // Forward ref button for DialogTrigger compatibility
@@ -32,9 +33,9 @@ export function Footer() {
     <footer className="py-12 lg:py-16 bg-foreground text-background">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex flex-col items-center mb-12">
-          {/* Logo/Initials */}
-          <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mb-4">
-            <span className="text-2xl font-bold text-primary-foreground">DM</span>
+          {/* Logo */}
+          <div className="mb-4">
+            <DMLogo size={56} />
           </div>
           <h3 className="text-xl font-semibold mb-1">Davor Mulalić</h3>
           <p className="text-background/70 text-sm">C-Level AI Leader</p>
