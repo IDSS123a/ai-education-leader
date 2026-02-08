@@ -35,7 +35,18 @@ function useTheme() {
     }
   }, [isDark]);
 
-  return { isDark, toggle: () => setIsDark((v) => !v) };
+  const toggle = () => {
+    // Add transition class before switching
+    const root = document.documentElement;
+    root.classList.add("theme-transition");
+    setIsDark((v) => !v);
+    // Remove transition class after animation completes
+    setTimeout(() => {
+      root.classList.remove("theme-transition");
+    }, 450);
+  };
+
+  return { isDark, toggle };
 }
 
 export function Navigation() {

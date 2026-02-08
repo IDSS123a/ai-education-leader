@@ -86,12 +86,30 @@
     --accent: 160 64% 45%;
     --accent-foreground: 0 0% 100%;
 
+    --accent-purple: 258 72% 62%;
+    --accent-purple-foreground: 0 0% 100%;
+
+    --accent-amber: 38 92% 55%;
+    --accent-amber-foreground: 0 0% 10%;
+
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 222 30% 18%;
     --input: 222 30% 18%;
     --ring: 210 82% 55%;
+
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(210, 82%, 55%) 0%, hsl(210, 82%, 45%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(222, 47%, 6%) 0%, hsl(222, 40%, 8%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(222, 47%, 8%) 0%, hsl(222, 40%, 10%) 100%);
+
+    /* Dark mode shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(222, 47%, 0%, 0.3);
+    --shadow-md: 0 4px 6px -1px hsl(222, 47%, 0%, 0.3), 0 2px 4px -2px hsl(222, 47%, 0%, 0.2);
+    --shadow-lg: 0 10px 15px -3px hsl(222, 47%, 0%, 0.3), 0 4px 6px -4px hsl(222, 47%, 0%, 0.2);
+    --shadow-xl: 0 20px 25px -5px hsl(222, 47%, 0%, 0.4), 0 8px 10px -6px hsl(222, 47%, 0%, 0.2);
+    --shadow-primary: 0 10px 30px -10px hsl(210, 82%, 55%, 0.3);
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -113,9 +131,24 @@
     scroll-behavior: smooth;
   }
 
+  /* Smooth theme transition on all elements */
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, fill 0.4s ease, stroke 0.4s ease !important;
+    transition-delay: 0s !important;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', sans-serif;
+  }
+
+  /* Ensure images are always visible in both modes */
+  img {
+    max-width: 100%;
+    height: auto;
   }
 }
 
