@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
+import { DMLogo } from "@/components/DMLogo";
 
 const navItems = [
   { label: "Home", href: "#home" },
@@ -63,8 +64,10 @@ export function Navigation() {
     >
       <nav className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Navigation spacer */}
-          <div className="w-10 lg:w-12" />
+          {/* Logo */}
+          <a href="#home" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <DMLogo size={36} />
+          </a>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
