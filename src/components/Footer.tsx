@@ -10,7 +10,7 @@ const CVButton = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLBu
     <button
       ref={ref}
       {...props}
-      className="flex items-center gap-2 px-4 py-2 bg-background/10 hover:bg-background/20 rounded-full transition-colors text-sm"
+      className="flex items-center gap-2 px-4 py-2 bg-background/10 dark:bg-secondary hover:bg-background/20 dark:hover:bg-secondary/80 rounded-full transition-colors text-sm"
     >
       <Download className="w-4 h-4" />
       Download CV
@@ -30,7 +30,7 @@ const footerLinks = [
 
 export function Footer() {
   return (
-    <footer className="py-12 lg:py-16 bg-foreground text-background">
+    <footer className="py-12 lg:py-16 bg-foreground text-background dark:bg-card dark:text-card-foreground dark:border-t dark:border-border">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex flex-col items-center mb-12">
           {/* Logo */}
@@ -38,7 +38,7 @@ export function Footer() {
             <DMLogo size={56} />
           </div>
           <h3 className="text-xl font-semibold mb-1">Davor Mulalić</h3>
-          <p className="text-background/70 text-sm">C-Level AI Leader</p>
+          <p className="text-background/70 dark:text-muted-foreground text-sm">C-Level AI Leader</p>
         </div>
 
         {/* Navigation Links */}
@@ -47,7 +47,7 @@ export function Footer() {
             <a
               key={link.href}
               href={link.href}
-              className="text-background/70 hover:text-background transition-colors text-sm"
+              className="text-background/70 dark:text-muted-foreground hover:text-background dark:hover:text-foreground transition-colors text-sm"
             >
               {link.label}
             </a>
@@ -60,7 +60,7 @@ export function Footer() {
             href="https://www.linkedin.com/in/davormulalic/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 bg-background/10 hover:bg-background/20 rounded-full transition-colors text-sm"
+            className="flex items-center gap-2 px-4 py-2 bg-background/10 dark:bg-secondary hover:bg-background/20 dark:hover:bg-secondary/80 rounded-full transition-colors text-sm"
           >
             <Linkedin className="w-4 h-4" />
             Connect
@@ -71,8 +71,8 @@ export function Footer() {
         </div>
 
         {/* Divider & Copyright */}
-        <div className="border-t border-background/10 pt-8">
-          <p className="text-background/60 text-sm text-center">
+        <div className="border-t border-background/10 dark:border-border pt-8">
+          <p className="text-background/60 dark:text-muted-foreground text-sm text-center">
             © 2026 Davor Mulalić. All rights reserved.
           </p>
         </div>
