@@ -173,6 +173,7 @@ export function AboutSection() {
                       <img
                         src={image.src}
                         alt={image.alt}
+                        loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
