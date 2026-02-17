@@ -90,6 +90,9 @@ export default function Admin() {
   const handleCVAction = async (token: string, action: "approve" | "reject") => {
     setProcessing(token);
     try {
+      // Find the request to get email/name
+      const request = cvRequests.find(r => r.token === token);
+      
       const { error } = await supabase
         .from("cv_requests")
         .update({ 
@@ -100,9 +103,24 @@ export default function Admin() {
 
       if (error) throw error;
 
+      // Send email notification
+      try {
+        await supabase.functions.invoke("notify-cv-approval", {
+          body: {
+            email: request?.email,
+            name: request?.name,
+            action,
+            token,
+          },
+        });
+      } catch (emailError) {
+        console.error("Failed to send notification email:", emailError);
+        // Don't block the action if email fails
+      }
+
       toast({
         title: action === "approve" ? "Approved!" : "Rejected",
-        description: `CV request has been ${action === "approve" ? "approved" : "rejected"}.`,
+        description: `CV request has been ${action === "approve" ? "approved" : "rejected"}. Notification email sent.`,
       });
 
       fetchRequests();

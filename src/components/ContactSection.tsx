@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useState } from "react";
-import { Mail, Linkedin, Phone, MapPin, Send } from "lucide-react";
+import { Mail, Linkedin, Phone, MapPin, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { contactFormSchema } from "@/lib/validation";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const contactMethods = [
   {
@@ -44,6 +45,7 @@ const interestOptions = [
 export function ContactSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [sending, setSending] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -68,18 +70,35 @@ export function ContactSection() {
         return;
       }
     }
-    
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for reaching out. I'll get back to you soon.",
-    });
-    setFormData({
-      name: "",
-      email: "",
-      organization: "",
-      interest: "",
-      message: "",
-    });
+
+    setSending(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-contact-email", {
+        body: {
+          name: formData.name.trim(),
+          email: formData.email.trim().toLowerCase(),
+          organization: formData.organization.trim() || undefined,
+          interest: formData.interest || undefined,
+          message: formData.message.trim(),
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Message Sent!",
+        description: "Thank you for reaching out. I'll get back to you soon.",
+      });
+      setFormData({ name: "", email: "", organization: "", interest: "", message: "" });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -245,9 +264,18 @@ export function ContactSection() {
                     placeholder="Tell me about your project or inquiry..."
                   />
                 </div>
-                <Button type="submit" size="lg" className="w-full">
-                  <Send className="w-4 h-4" />
-                  Send Message
+                <Button type="submit" size="lg" className="w-full" disabled={sending}>
+                  {sending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Send Message
+                    </>
+                  )}
                 </Button>
               </form>
             </motion.div>
