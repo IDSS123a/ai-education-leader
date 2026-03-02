@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import bookAiTeacherCompanion from "@/assets/book-ai-teacher-companion.jpg";
 import bookPromptEngineeringManual from "@/assets/book-prompt-engineering-manual.png";
 import bookAiBusinessExcellence from "@/assets/book-ai-business-excellence.png";
-import bookAiSolvedProblems from "@/assets/book-ai-solved-problems.png";
+
 
 const amazonLink = "https://www.amazon.com/s?i=digital-text&rh=p_27%3ADavor%2BMulali%25C4%2587&s=relevancerank&text=Davor+Mulali%C4%87&ref=dp_byline_sr_ebooks_1";
 const paypalLink = "https://www.paypal.com/ncp/payment/FKMN5XAS97TEY";
@@ -35,14 +35,6 @@ const books = [
     description:
       "Comprehensive guide to prompt engineering for educators and professionals without coding background",
     topics: ["Prompting techniques", "Educational applications", "Best practices"],
-  },
-  {
-    title: "AI Solved Business Problems",
-    subtitle: "A Manager's Workbook",
-    image: bookAiSolvedProblems,
-    description:
-      "Practical workbook for managers to solve real business challenges using AI",
-    topics: ["Problem solving", "Management", "AI implementation"],
   },
 ];
 
@@ -88,7 +80,7 @@ export function BooksSection() {
           </div>
 
           {/* Books Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {books.map((book, index) => (
               <motion.div
                 key={index}
