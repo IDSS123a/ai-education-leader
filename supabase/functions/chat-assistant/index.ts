@@ -65,7 +65,7 @@ ISO 9001:2015, HACCP, FSC, PEFC, ERP Implementation, KAIZEN, LEAN, IAS
 - Sustainable Development Business Leaders Award 2025
 
 ### Contact
-- Email: mulalic71@gmail.com
+- Email: mulalic.davor@outlook.com
 - Phone: +387 (0)61 787 331
 - LinkedIn: linkedin.com/in/davormulalic
 - Location: Sarajevo, Bosnia and Herzegovina

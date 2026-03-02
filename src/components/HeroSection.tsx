@@ -137,7 +137,7 @@ export function HeroSection() {
                 <span className="text-sm font-medium">LinkedIn</span>
               </a>
               <a
-                href="mailto:mulalic71@gmail.com"
+                href="mailto:mulalic.davor@outlook.com"
                 className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
               >
                 <Mail className="w-5 h-5" />
