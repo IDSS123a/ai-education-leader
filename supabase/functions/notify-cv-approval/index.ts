@@ -103,7 +103,7 @@ serve(async (req) => {
           <p>Hi ${displayName},</p>
           <p>Thank you for your interest. Unfortunately, your CV request could not be approved at this time.</p>
           <p>Feel free to reach out directly for any questions:</p>
-          <p><a href="mailto:mulalic71@gmail.com">mulalic71@gmail.com</a></p>
+          <p><a href="mailto:mulalic.davor@outlook.com">mulalic.davor@outlook.com</a></p>
           <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
           <p style="color: #aaa; font-size: 12px;">Davor Mulalić — CEO & AI Strategist</p>
         </div>

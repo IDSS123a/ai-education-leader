@@ -18,8 +18,8 @@ const contactMethods = [
   {
     icon: Mail,
     label: "Email",
-    value: "mulalic71@gmail.com",
-    action: "mailto:mulalic71@gmail.com",
+    value: "mulalic.davor@outlook.com",
+    action: "mailto:mulalic.davor@outlook.com",
   },
   {
     icon: Linkedin,
