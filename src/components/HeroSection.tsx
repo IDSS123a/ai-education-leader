@@ -12,15 +12,16 @@ const highlights = [
 ];
 
 const industries = [
-  "Micro Finance",
-  "NGO",
-  "Project Management",
-  "Holding",
-  "Business Consulting",
   "Education & EdTech",
   "Finance & Banking",
   "Manufacturing",
+  "Micro Finance",
+  "Business Consulting",
   "Sales",
+  "NGO",
+  "Project Management",
+  "Holding",
+  "Medical & Pharmaceutical",
 ];
 
 export function HeroSection() {
