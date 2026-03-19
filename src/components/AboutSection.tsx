@@ -18,14 +18,17 @@ const competencies = [
   "Workforce Development & Team Building",
   "Business Strategy & Sales Development",
   "Financial & Production Management",
+  "Project Management",
+  "School Management",
   "Complex Problem Solving",
-  "Negotiation",
+  "Strong Decision Making",
   "Client Acquisition",
   "New Market Penetration",
+  "Creative Design & Innovation",
 ];
 
 const education = [
-  { degree: "Master of International Business", institution: "Online Business School" },
+  { degree: "Master of International Business", institution: "Cambridge International Business Study" },
   { degree: "Doctor of Veterinary Medicine", institution: "Veterinary Faculty" },
 ];
 
@@ -187,7 +190,7 @@ export function AboutSection() {
                 </div>
                 <div className="mt-3 text-center">
                   <p className="text-sm text-muted-foreground">
-                    Sustainable Development Business Leaders Award 2025
+                    Business Leader for Sustainable Development 2025 — Awarded by UNDP, the United Nations, Embassy of Sweden & Foreign Trade Chamber
                   </p>
                 </div>
               </motion.div>
@@ -212,6 +215,14 @@ export function AboutSection() {
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">German</span>
                     <span className="text-muted-foreground">A2</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">French</span>
+                    <span className="text-muted-foreground">A1</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Latin</span>
+                    <span className="text-muted-foreground">B1</span>
                   </div>
                 </div>
               </motion.div>
