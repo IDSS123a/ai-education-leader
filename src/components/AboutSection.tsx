@@ -216,6 +216,14 @@ export function AboutSection() {
                     <span className="text-muted-foreground">German</span>
                     <span className="text-muted-foreground">A2</span>
                   </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">French</span>
+                    <span className="text-muted-foreground">A1</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Latin</span>
+                    <span className="text-muted-foreground">B1</span>
+                  </div>
                 </div>
               </motion.div>
 
