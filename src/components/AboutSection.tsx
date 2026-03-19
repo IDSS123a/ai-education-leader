@@ -25,7 +25,7 @@ const competencies = [
 ];
 
 const education = [
-  { degree: "Master of International Business", institution: "Online Business School" },
+  { degree: "Master of International Business", institution: "Cambridge International Business Study" },
   { degree: "Doctor of Veterinary Medicine", institution: "Veterinary Faculty" },
 ];
 
