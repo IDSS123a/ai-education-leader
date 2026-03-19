@@ -190,7 +190,7 @@ export function AboutSection() {
                 </div>
                 <div className="mt-3 text-center">
                   <p className="text-sm text-muted-foreground">
-                    Sustainable Development Business Leaders Award 2025
+                    Business Leader for Sustainable Development 2025 — Awarded by UNDP, the United Nations, Embassy of Sweden & Foreign Trade Chamber
                   </p>
                 </div>
               </motion.div>
