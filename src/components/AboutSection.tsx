@@ -18,10 +18,13 @@ const competencies = [
   "Workforce Development & Team Building",
   "Business Strategy & Sales Development",
   "Financial & Production Management",
+  "Project Management",
+  "School Management",
   "Complex Problem Solving",
-  "Negotiation",
+  "Strong Decision Making",
   "Client Acquisition",
   "New Market Penetration",
+  "Creative Design & Innovation",
 ];
 
 const education = [
