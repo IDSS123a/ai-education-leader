@@ -10,10 +10,10 @@ const portfolioImages: Record<number, string> = {
   7: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800", // Manufacturing
   8: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=800", // Accounting
   9: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=800", // Transport/logistics
-  10: "https://images.unsplash.com/photo-1450101499163-c8848e968bc7?auto=format&fit=crop&q=80&w=800", // Insurance
+  10: "https://images.unsplash.com/photo-1554224154-22dec7ec8818?auto=format&fit=crop&q=80&w=800", // Insurance
   11: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=800", // Retail store
   12: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=800", // Legal
-  13: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&q=80&w=800", // Fleet/vehicles
+  13: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=80&w=800", // Fleet/vehicles
   14: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=800", // Education
   15: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800", // Construction
   16: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800", // Energy
@@ -26,10 +26,10 @@ const portfolioImages: Record<number, string> = {
   21: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800", // Clinical/healthcare
   22: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&q=80&w=800", // Banking/underwriting
   23: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=800", // Retail/pricing
-  24: "https://images.unsplash.com/photo-1532187863486-abf4dbfd40b7?auto=format&fit=crop&q=80&w=800", // Pharma/regulatory
+  24: "https://images.unsplash.com/photo-1585435557343-3b092031a831?auto=format&fit=crop&q=80&w=800", // Pharma/regulatory
   25: "https://images.unsplash.com/photo-1565043666747-69f6646db940?auto=format&fit=crop&q=80&w=800", // Manufacturing
   26: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800", // Finance/anomaly
-  27: "https://images.unsplash.com/photo-1494412574643-ff11b0a5eb95?auto=format&fit=crop&q=80&w=800", // Transport/route
+  27: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=800", // Transport/route
   28: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&q=80&w=800", // Education/curriculum
   29: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800", // Insurance/claims
   30: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=800", // Industrial/maintenance
@@ -49,19 +49,19 @@ const portfolioImages: Record<number, string> = {
   44: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&q=80&w=800", // Finance/forecast
   45: "https://images.unsplash.com/photo-1565043666747-69f6646db940?auto=format&fit=crop&q=80&w=800", // Manufacturing/supplier
   46: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=800", // E-commerce/UX
-  47: "https://images.unsplash.com/photo-1563986768609-322da13575f2?auto=format&fit=crop&q=80&w=800", // IT/privacy
-  48: "https://images.unsplash.com/photo-1542744173-8e7e91415657?auto=format&fit=crop&q=80&w=800", // Management/executive
-  49: "https://images.unsplash.com/photo-1504711434969-e33886168d6c?auto=format&fit=crop&q=80&w=800", // PR/crisis
+  47: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800", // IT/privacy
+  48: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800", // Management/executive
+  49: "https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&q=80&w=800", // PR/crisis
   50: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800", // Corporate/M&A
   51: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800", // AI/tech
   52: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=800", // Legal/redline
   53: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800", // Healthcare/patient
   54: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800", // Sales/pitch
-  55: "https://images.unsplash.com/photo-1450101499163-c8848e968bc7?auto=format&fit=crop&q=80&w=800", // Regulatory/compliance
-  56: "https://images.unsplash.com/photo-1494412574643-ff11b0a5eb95?auto=format&fit=crop&q=80&w=800", // Logistics/supply chain
+  55: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800", // Regulatory/compliance
+  56: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=800", // Logistics/supply chain
   57: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&q=80&w=800", // Healthcare/medical image
   58: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800", // AI governance
-  59: "https://images.unsplash.com/photo-1542744173-8e7e91415657?auto=format&fit=crop&q=80&w=800", // Management/OKR
+  59: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=800", // Management/OKR
   60: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&q=80&w=800", // DevOps/code
 };
 
