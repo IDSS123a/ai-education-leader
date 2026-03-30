@@ -3,9 +3,9 @@ import { useState, useMemo } from "react";
 import { 
   Sparkles, Lightbulb, ArrowUpRight, Search
 } from "lucide-react";
-import { PortfolioThumbnail } from "./PortfolioThumbnail";
 import { PortfolioFilter } from "./PortfolioFilter";
 import { PortfolioDetailCard } from "./PortfolioDetailCard";
+import { getPortfolioImage } from "./portfolioImages";
 
 // Complete list of 20 web apps - shuffled by industry
 const webApps = [
@@ -179,11 +179,11 @@ export const PortfolioSection = () => {
                   >
                     {/* Thumbnail */}
                     <div className="aspect-[16/10] bg-muted/30 relative overflow-hidden">
-                      <PortfolioThumbnail
-                        id={app.id}
-                        industry={app.industry}
-                        type="app"
-                        className="w-full h-full group-hover:scale-105 transition-transform duration-500"
+                      <img
+                        src={getPortfolioImage(app.id)}
+                        alt={app.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
                       />
                       <div className="absolute top-2 right-2 px-2 py-0.5 bg-card/90 backdrop-blur-sm rounded-md text-[10px] font-medium text-primary border border-border/50">
                         {app.industry}
@@ -244,11 +244,11 @@ export const PortfolioSection = () => {
                   >
                     {/* Thumbnail */}
                     <div className="aspect-[16/10] bg-muted/20 relative overflow-hidden">
-                      <PortfolioThumbnail
-                        id={prompt.id}
-                        industry={prompt.industry}
-                        type="prompt"
-                        className="w-full h-full group-hover:scale-105 transition-transform duration-500"
+                      <img
+                        src={getPortfolioImage(prompt.id)}
+                        alt={prompt.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
                       />
                       <div className="absolute top-2 right-2 px-2 py-0.5 bg-card/90 backdrop-blur-sm rounded-md text-[10px] font-medium text-accent border border-border/50">
                         {prompt.industry}

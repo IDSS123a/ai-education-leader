@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Zap, AlertTriangle, Lightbulb, TrendingUp, Code2 } from "lucide-react";
-import { PortfolioThumbnail } from "./PortfolioThumbnail";
+import { getPortfolioImage } from "./portfolioImages";
 
 interface WebAppDetail {
   type: "app";
@@ -58,16 +58,20 @@ export function PortfolioDetailCard({ item, onClose }: PortfolioDetailCardProps)
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg sm:max-h-[85vh] bg-card rounded-2xl border border-border shadow-2xl z-50 overflow-hidden flex flex-col"
+            className="fixed inset-4 max-h-[92vh] sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg sm:max-h-[85vh] bg-card rounded-2xl border border-border shadow-2xl z-50 overflow-hidden flex flex-col"
           >
             {/* Header with thumbnail */}
             <div className="relative aspect-[16/9] bg-muted/30 flex-shrink-0">
-              <PortfolioThumbnail
-                id={item.id}
-                industry={item.industry}
-                type={isApp ? "app" : "prompt"}
-                className="w-full h-full"
-              />
+              {getPortfolioImage(item.id) ? (
+                <img
+                  src={getPortfolioImage(item.id)}
+                  alt={name}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="w-full h-full bg-muted/50" />
+              )}
               <div className="absolute top-3 right-3 flex items-center gap-2">
                 <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${accentBgClass} backdrop-blur-sm border border-border/50`}>
                   {item.industry}
