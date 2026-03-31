@@ -12,7 +12,6 @@ const books = [
   {
     title: "AI for Business and Personal Excellence",
     subtitle: "Strategies for Growth and Productivity",
-    image: bookAiBusinessExcellence,
     description:
       "Applying AI strategies for business growth and personal productivity enhancement",
     topics: ["Business automation", "Personal productivity", "AI strategy"],
@@ -20,7 +19,6 @@ const books = [
   {
     title: "The AI Teacher's Companion",
     subtitle: "Integrating Artificial Intelligence in Your Classroom",
-    image: bookAiTeacherCompanion,
     description:
       "Practical guide for educators to effectively integrate AI tools into daily teaching practice",
     topics: ["AI tools for teachers", "Lesson planning with AI", "Practical examples"],
@@ -28,7 +26,6 @@ const books = [
   {
     title: "Mastering Prompt Engineering",
     subtitle: "A Practical Manual for Advanced Non-Coders",
-    image: bookPromptEngineeringManual,
     description:
       "Comprehensive guide to prompt engineering for educators and professionals without coding background",
     topics: ["Prompting techniques", "Educational applications", "Best practices"],
