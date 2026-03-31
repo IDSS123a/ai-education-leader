@@ -3,9 +3,6 @@ import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { ExternalLink, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import bookAiTeacherCompanion from "@/assets/book-ai-teacher-companion.jpg";
-import bookPromptEngineeringManual from "@/assets/book-prompt-engineering-manual.png";
-import bookAiBusinessExcellence from "@/assets/book-ai-business-excellence.png";
 
 
 const amazonLink = "https://www.amazon.com/s?i=digital-text&rh=p_27%3ADavor%2BMulali%25C4%2587&s=relevancerank&text=Davor+Mulali%C4%87&ref=dp_byline_sr_ebooks_1";
