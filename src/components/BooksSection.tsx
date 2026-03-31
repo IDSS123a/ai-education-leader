@@ -89,14 +89,12 @@ export function BooksSection() {
                 transition={{ delay: 0.4 + index * 0.15 }}
                 className="group bg-background rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300"
               >
-                {/* Book Cover */}
-                <div className="relative aspect-[3/4] overflow-hidden bg-muted">
-                  <img
-                    src={book.image}
-                    alt={book.title}
-                    loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                {/* Book Icon Header */}
+                <div className="relative aspect-[2/1] overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                  <div className="text-center">
+                    <span className="text-4xl">📘</span>
+                    <p className="text-xs text-primary/60 mt-2 font-medium tracking-wider uppercase">Published Work</p>
+                  </div>
                 </div>
 
                 {/* Content */}
