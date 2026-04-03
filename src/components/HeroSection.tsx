@@ -1,8 +1,11 @@
+import { lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Download, Linkedin, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CVRequestDialog } from "@/components/CVRequestDialog";
 import davorProfile from "@/assets/davor-profile-real.png";
+
+const HeroGlobe = lazy(() => import("@/components/HeroGlobe").then(m => ({ default: m.HeroGlobe })));
 
 const highlights = [
   { metric: "25+", label: "Years Experience" },
