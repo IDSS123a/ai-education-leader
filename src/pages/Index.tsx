@@ -15,9 +15,7 @@ import { ParticleBackground } from "@/components/ParticleBackground";
 const Index = () => {
   return (
     <div className="min-h-screen relative">
-      <Suspense fallback={null}>
-        <ParticleBackground />
-      </Suspense>
+      <ParticleBackground />
       <Navigation />
       <main className="relative z-10">
         <HeroSection />
