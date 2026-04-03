@@ -178,40 +178,42 @@ export const PortfolioSection = () => {
                     className="bg-card rounded-xl border border-border/50 overflow-hidden hover:border-primary/30 hover:shadow-card transition-all duration-300 cursor-pointer group"
                     onClick={() => setSelectedItem({ type: "app", ...app })}
                   >
-                    {/* Thumbnail */}
-                    <div className="aspect-[16/10] bg-muted/30 relative overflow-hidden">
-                      <img
-                        src={getPortfolioImage(app.id)}
-                        alt={app.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                      <div className="absolute top-2 right-2 px-2 py-0.5 bg-card/90 backdrop-blur-sm rounded-md text-[10px] font-medium text-primary border border-border/50">
-                        {app.industry}
+                    <FloatingCard intensity={8}>
+                      {/* Thumbnail */}
+                      <div className="aspect-[16/10] bg-muted/30 relative overflow-hidden">
+                        <img
+                          src={getPortfolioImage(app.id)}
+                          alt={app.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className="absolute top-2 right-2 px-2 py-0.5 bg-card/90 backdrop-blur-sm rounded-md text-[10px] font-medium text-primary border border-border/50">
+                          {app.industry}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="p-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <h4 className="font-semibold text-foreground text-sm leading-tight group-hover:text-primary transition-colors">
-                          {app.name}
-                        </h4>
-                        <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                      <div className="p-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <h4 className="font-semibold text-foreground text-sm leading-tight group-hover:text-primary transition-colors">
+                            {app.name}
+                          </h4>
+                          <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{app.solution}</p>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {app.techStack.slice(0, 3).map((tech) => (
+                            <span key={tech} className="px-1.5 py-0.5 bg-muted rounded text-[9px] font-medium text-muted-foreground">
+                              {tech}
+                            </span>
+                          ))}
+                          {app.techStack.length > 3 && (
+                            <span className="px-1.5 py-0.5 text-[9px] text-muted-foreground">
+                              +{app.techStack.length - 3}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{app.solution}</p>
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {app.techStack.slice(0, 3).map((tech) => (
-                          <span key={tech} className="px-1.5 py-0.5 bg-muted rounded text-[9px] font-medium text-muted-foreground">
-                            {tech}
-                          </span>
-                        ))}
-                        {app.techStack.length > 3 && (
-                          <span className="px-1.5 py-0.5 text-[9px] text-muted-foreground">
-                            +{app.techStack.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                    </FloatingCard>
                   </motion.div>
                 ))}
               </AnimatePresence>
