@@ -259,24 +259,25 @@ export const PortfolioSection = () => {
                         </div>
                       </div>
 
-                    <div className="p-4">
-                      <h4 className="font-semibold text-foreground text-sm mb-1.5 group-hover:text-accent transition-colors leading-tight">
-                        {prompt.title}
-                      </h4>
-                      <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{prompt.description}</p>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {prompt.techStack.slice(0, 3).map((tech) => (
-                          <span key={tech} className="px-1.5 py-0.5 bg-muted rounded text-[9px] font-medium text-muted-foreground">
-                            {tech}
-                          </span>
-                        ))}
-                        {prompt.techStack.length > 3 && (
-                          <span className="px-1.5 py-0.5 text-[9px] text-muted-foreground">
-                            +{prompt.techStack.length - 3}
-                          </span>
-                        )}
+                      <div className="p-4">
+                        <h4 className="font-semibold text-foreground text-sm mb-1.5 group-hover:text-accent transition-colors leading-tight">
+                          {prompt.title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{prompt.description}</p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {prompt.techStack.slice(0, 3).map((tech) => (
+                            <span key={tech} className="px-1.5 py-0.5 bg-muted rounded text-[9px] font-medium text-muted-foreground">
+                              {tech}
+                            </span>
+                          ))}
+                          {prompt.techStack.length > 3 && (
+                            <span className="px-1.5 py-0.5 text-[9px] text-muted-foreground">
+                              +{prompt.techStack.length - 3}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    </FloatingCard>
                   </motion.div>
                 ))}
               </AnimatePresence>
