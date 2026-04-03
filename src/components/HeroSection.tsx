@@ -158,6 +158,12 @@ export function HeroSection() {
             className="order-1 lg:order-2 flex flex-col items-center"
           >
             <div className="relative mb-8">
+              {/* 3D Globe behind the profile image */}
+              <div className="absolute -inset-16 md:-inset-20 lg:-inset-24">
+                <Suspense fallback={null}>
+                  <HeroGlobe />
+                </Suspense>
+              </div>
               {/* Decorative elements */}
               <div className="absolute -inset-4 bg-gradient-to-br from-primary/20 via-accent/10 to-transparent rounded-full blur-2xl" />
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent rounded-full" />
