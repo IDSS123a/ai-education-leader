@@ -1,11 +1,9 @@
-import { lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Download, Linkedin, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CVRequestDialog } from "@/components/CVRequestDialog";
 import davorProfile from "@/assets/davor-profile-real.png";
-
-const HeroGlobe = lazy(() => import("@/components/HeroGlobe").then(m => ({ default: m.HeroGlobe })));
+import { HeroGlobe } from "@/components/HeroGlobe";
 
 const highlights = [
   { metric: "25+", label: "Years Experience" },
@@ -160,9 +158,7 @@ export function HeroSection() {
             <div className="relative mb-8">
               {/* 3D Globe behind the profile image */}
               <div className="absolute -inset-16 md:-inset-20 lg:-inset-24">
-                <Suspense fallback={null}>
-                  <HeroGlobe />
-                </Suspense>
+                <HeroGlobe />
               </div>
               {/* Decorative elements */}
               <div className="absolute -inset-4 bg-gradient-to-br from-primary/20 via-accent/10 to-transparent rounded-full blur-2xl" />

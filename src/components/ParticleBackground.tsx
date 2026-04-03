@@ -1,68 +1,63 @@
-import { useRef, useMemo, useCallback } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import * as THREE from "three";
-
-function Particles() {
-  const ref = useRef<THREE.Points>(null);
-  const count = 80;
-
-  const { positions, speeds } = useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    const spd = new Float32Array(count);
-    for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 20;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 10;
-      spd[i] = 0.2 + Math.random() * 0.5;
-    }
-    return { positions: pos, speeds: spd };
-  }, []);
-
-  useFrame((_, delta) => {
-    if (!ref.current) return;
-    const geo = ref.current.geometry;
-    const posAttr = geo.attributes.position as THREE.BufferAttribute;
-    for (let i = 0; i < count; i++) {
-      let y = posAttr.getY(i);
-      y += delta * speeds[i];
-      if (y > 10) y = -10;
-      posAttr.setY(i, y);
-    }
-    posAttr.needsUpdate = true;
-  });
-
-  return (
-    <points ref={ref}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={count}
-          array={positions}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.03}
-        color="hsl(210, 82%, 55%)"
-        transparent
-        opacity={0.3}
-        sizeAttenuation
-      />
-    </points>
-  );
-}
+import { useRef, useEffect } from "react";
 
 export function ParticleBackground() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    const particles: { x: number; y: number; speed: number; size: number; opacity: number }[] = [];
+    const count = 60;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        speed: 0.15 + Math.random() * 0.4,
+        size: 1 + Math.random() * 2,
+        opacity: 0.1 + Math.random() * 0.25,
+      });
+    }
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of particles) {
+        p.y -= p.speed;
+        if (p.y < -10) {
+          p.y = canvas.height + 10;
+          p.x = Math.random() * canvas.width;
+        }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(210, 82%, 55%, ${p.opacity})`;
+        ctx.fill();
+      }
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
   return (
-    <div className="fixed inset-0 pointer-events-none z-0" style={{ opacity: 0.4 }}>
-      <Canvas
-        camera={{ position: [0, 0, 8], fov: 50 }}
-        dpr={[1, 1]}
-        gl={{ antialias: false, alpha: true }}
-        style={{ background: "transparent" }}
-      >
-        <Particles />
-      </Canvas>
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-0"
+      style={{ opacity: 0.5 }}
+    />
   );
 }

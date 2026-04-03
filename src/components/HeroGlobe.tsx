@@ -1,152 +1,98 @@
-import { useRef, useMemo, useCallback } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Float } from "@react-three/drei";
-import * as THREE from "three";
-
-function NetworkNodes() {
-  const groupRef = useRef<THREE.Group>(null);
-  const linesRef = useRef<THREE.LineSegments>(null);
-
-  const { positions, connections, nodeColors } = useMemo(() => {
-    const count = 60;
-    const radius = 2.8;
-    const pos: number[] = [];
-    const cols: number[] = [];
-    const primaryColor = new THREE.Color("hsl(210, 82%, 45%)");
-    const accentColor = new THREE.Color("hsl(160, 64%, 45%)");
-
-    for (let i = 0; i < count; i++) {
-      const phi = Math.acos(-1 + (2 * i) / count);
-      const theta = Math.sqrt(count * Math.PI) * phi;
-      const jitter = 0.15;
-      pos.push(
-        radius * Math.cos(theta) * Math.sin(phi) + (Math.random() - 0.5) * jitter,
-        radius * Math.sin(theta) * Math.sin(phi) + (Math.random() - 0.5) * jitter,
-        radius * Math.cos(phi) + (Math.random() - 0.5) * jitter
-      );
-      const c = Math.random() > 0.3 ? primaryColor : accentColor;
-      cols.push(c.r, c.g, c.b);
-    }
-
-    // Build connections between nearby nodes
-    const conns: number[] = [];
-    for (let i = 0; i < count; i++) {
-      for (let j = i + 1; j < count; j++) {
-        const dx = pos[i * 3] - pos[j * 3];
-        const dy = pos[i * 3 + 1] - pos[j * 3 + 1];
-        const dz = pos[i * 3 + 2] - pos[j * 3 + 2];
-        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        if (dist < 1.8) {
-          conns.push(
-            pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2],
-            pos[j * 3], pos[j * 3 + 1], pos[j * 3 + 2]
-          );
-        }
-      }
-    }
-
-    return {
-      positions: new Float32Array(pos),
-      connections: new Float32Array(conns),
-      nodeColors: new Float32Array(cols),
-    };
-  }, []);
-
-  useFrame((_, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.08;
-      groupRef.current.rotation.x = Math.sin(Date.now() * 0.0003) * 0.1;
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      {/* Nodes */}
-      <points>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            count={positions.length / 3}
-            array={positions}
-            itemSize={3}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            count={nodeColors.length / 3}
-            array={nodeColors}
-            itemSize={3}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          size={0.06}
-          vertexColors
-          transparent
-          opacity={0.9}
-          sizeAttenuation
-        />
-      </points>
-
-      {/* Connection lines */}
-      <lineSegments ref={linesRef}>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            count={connections.length / 3}
-            array={connections}
-            itemSize={3}
-          />
-        </bufferGeometry>
-        <lineBasicMaterial
-          color="hsl(210, 82%, 50%)"
-          transparent
-          opacity={0.12}
-        />
-      </lineSegments>
-
-      {/* Core glow sphere */}
-      <mesh>
-        <sphereGeometry args={[0.3, 16, 16]} />
-        <meshBasicMaterial color="hsl(210, 82%, 55%)" transparent opacity={0.15} />
-      </mesh>
-      <mesh>
-        <sphereGeometry args={[0.15, 16, 16]} />
-        <meshBasicMaterial color="hsl(160, 64%, 50%)" transparent opacity={0.3} />
-      </mesh>
-    </group>
-  );
-}
-
-function FloatingRing({ radius, speed, color, opacity }: { radius: number; speed: number; color: string; opacity: number }) {
-  const ref = useRef<THREE.Mesh>(null);
-  useFrame((_, delta) => {
-    if (ref.current) {
-      ref.current.rotation.z += delta * speed;
-    }
-  });
-  return (
-    <mesh ref={ref}>
-      <torusGeometry args={[radius, 0.008, 8, 64]} />
-      <meshBasicMaterial color={color} transparent opacity={opacity} />
-    </mesh>
-  );
-}
+import { useEffect, useRef } from "react";
 
 export function HeroGlobe() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    let rotation = 0;
+    const size = 400;
+    canvas.width = size;
+    canvas.height = size;
+    const cx = size / 2;
+    const cy = size / 2;
+    const radius = size * 0.38;
+    const nodeCount = 50;
+
+    // Generate nodes on a sphere (projected to 2D)
+    const nodes = Array.from({ length: nodeCount }, (_, i) => {
+      const phi = Math.acos(-1 + (2 * i) / nodeCount);
+      const theta = Math.sqrt(nodeCount * Math.PI) * phi;
+      return { phi, theta };
+    });
+
+    const project = (phi: number, theta: number, rot: number) => {
+      const x3d = Math.cos(theta + rot) * Math.sin(phi);
+      const y3d = Math.sin(theta + rot) * Math.sin(phi);
+      const z3d = Math.cos(phi);
+      return {
+        x: cx + x3d * radius,
+        y: cy + z3d * radius,
+        z: y3d,
+        opacity: 0.3 + (y3d + 1) * 0.35,
+      };
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, size, size);
+      rotation += 0.003;
+
+      const projected = nodes.map((n) => project(n.phi, n.theta, rotation));
+
+      // Draw connections
+      for (let i = 0; i < projected.length; i++) {
+        for (let j = i + 1; j < projected.length; j++) {
+          const a = projected[i];
+          const b = projected[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < radius * 0.7) {
+            const op = Math.min(a.opacity, b.opacity) * 0.3 * (1 - dist / (radius * 0.7));
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = `hsla(210, 82%, 55%, ${op})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw nodes
+      for (const p of projected) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2 + p.opacity * 2, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(210, 82%, 55%, ${p.opacity * 0.8})`;
+        ctx.fill();
+      }
+
+      // Core glow
+      const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.3);
+      grd.addColorStop(0, "hsla(160, 64%, 50%, 0.15)");
+      grd.addColorStop(1, "hsla(210, 82%, 55%, 0)");
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
   return (
-    <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.6 }}>
-      <Canvas
-        camera={{ position: [0, 0, 6], fov: 45 }}
-        dpr={[1, 1.5]}
-        gl={{ antialias: true, alpha: true }}
-        style={{ background: "transparent" }}
-      >
-        <ambientLight intensity={0.5} />
-        <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
-          <NetworkNodes />
-        </Float>
-        <FloatingRing radius={3.2} speed={0.15} color="hsl(210, 82%, 50%)" opacity={0.08} />
-        <FloatingRing radius={3.5} speed={-0.1} color="hsl(160, 64%, 45%)" opacity={0.06} />
-      </Canvas>
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ opacity: 0.6 }}
+    />
   );
 }
