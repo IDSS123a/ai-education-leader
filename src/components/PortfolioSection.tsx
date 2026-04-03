@@ -6,6 +6,7 @@ import {
 import { PortfolioFilter } from "./PortfolioFilter";
 import { PortfolioDetailCard } from "./PortfolioDetailCard";
 import { getPortfolioImage } from "./portfolioImages";
+import { FloatingCard } from "./FloatingCard";
 
 // Complete list of 20 web apps - shuffled by industry
 const webApps = [
