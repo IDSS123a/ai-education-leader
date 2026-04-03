@@ -1,4 +1,3 @@
-import { lazy, Suspense } from "react";
 import { Navigation } from "@/components/Navigation";
 import { HeroSection } from "@/components/HeroSection";
 import { AboutSection } from "@/components/AboutSection";
@@ -11,8 +10,7 @@ import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { ContactSection } from "@/components/ContactSection";
 import { Footer } from "@/components/Footer";
 import { ChatBot } from "@/components/ChatBot";
-
-const ParticleBackground = lazy(() => import("@/components/ParticleBackground").then(m => ({ default: m.ParticleBackground })));
+import { ParticleBackground } from "@/components/ParticleBackground";
 
 const Index = () => {
   return (
