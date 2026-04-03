@@ -245,18 +245,19 @@ export const PortfolioSection = () => {
                     className="bg-card rounded-xl border border-border/50 overflow-hidden hover:border-accent/30 hover:shadow-card transition-all duration-300 cursor-pointer group"
                     onClick={() => setSelectedItem({ type: "prompt", ...prompt })}
                   >
-                    {/* Thumbnail */}
-                    <div className="aspect-[16/10] bg-muted/20 relative overflow-hidden">
-                      <img
-                        src={getPortfolioImage(prompt.id)}
-                        alt={prompt.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                      <div className="absolute top-2 right-2 px-2 py-0.5 bg-card/90 backdrop-blur-sm rounded-md text-[10px] font-medium text-accent border border-border/50">
-                        {prompt.industry}
+                    <FloatingCard intensity={8}>
+                      {/* Thumbnail */}
+                      <div className="aspect-[16/10] bg-muted/20 relative overflow-hidden">
+                        <img
+                          src={getPortfolioImage(prompt.id)}
+                          alt={prompt.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className="absolute top-2 right-2 px-2 py-0.5 bg-card/90 backdrop-blur-sm rounded-md text-[10px] font-medium text-accent border border-border/50">
+                          {prompt.industry}
+                        </div>
                       </div>
-                    </div>
 
                     <div className="p-4">
                       <h4 className="font-semibold text-foreground text-sm mb-1.5 group-hover:text-accent transition-colors leading-tight">
