@@ -10,8 +10,12 @@ export function ParticleBackground() {
     if (!ctx) return;
 
     let animId: number;
-    const particles: { x: number; y: number; speed: number; size: number; opacity: number }[] = [];
-    const count = 60;
+    const particles: {
+      x: number; y: number; z: number;
+      speed: number; size: number; opacity: number;
+      connectRadius: number;
+    }[] = [];
+    const count = 80;
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -21,17 +25,43 @@ export function ParticleBackground() {
     window.addEventListener("resize", resize);
 
     for (let i = 0; i < count; i++) {
+      const z = 0.3 + Math.random() * 0.7; // depth layer
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        speed: 0.15 + Math.random() * 0.4,
-        size: 1 + Math.random() * 2,
-        opacity: 0.1 + Math.random() * 0.25,
+        z,
+        speed: (0.1 + Math.random() * 0.3) * z,
+        size: (1 + Math.random() * 2) * z,
+        opacity: (0.08 + Math.random() * 0.2) * z,
+        connectRadius: 120 * z,
       });
     }
 
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw connections between nearby particles
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const a = particles[i];
+          const b = particles[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const maxDist = Math.min(a.connectRadius, b.connectRadius);
+          if (dist < maxDist) {
+            const op = Math.min(a.opacity, b.opacity) * 0.4 * (1 - dist / maxDist);
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = `hsla(210, 82%, 55%, ${op})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw particles with depth-based sizing
       for (const p of particles) {
         p.y -= p.speed;
         if (p.y < -10) {
@@ -42,6 +72,17 @@ export function ParticleBackground() {
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = `hsla(210, 82%, 55%, ${p.opacity})`;
         ctx.fill();
+
+        // Subtle glow for larger particles
+        if (p.size > 2) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+          const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
+          grd.addColorStop(0, `hsla(210, 82%, 55%, ${p.opacity * 0.3})`);
+          grd.addColorStop(1, "hsla(210, 82%, 55%, 0)");
+          ctx.fillStyle = grd;
+          ctx.fill();
+        }
       }
       animId = requestAnimationFrame(draw);
     };
@@ -57,7 +98,7 @@ export function ParticleBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.5 }}
+      style={{ opacity: 0.55 }}
     />
   );
 }
