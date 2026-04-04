@@ -55,19 +55,19 @@ export function MetricBar3D({
   const c = colorMap[color];
 
   return (
-    <div ref={ref} className="flex flex-col items-center gap-3">
-      {/* Metric value */}
+    <div ref={ref} className="flex flex-col items-center w-20 md:w-24">
+      {/* Metric value — fixed height area */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ delay: delay + 0.3, duration: 0.4 }}
-        className={`text-xl md:text-2xl font-bold ${c.text}`}
+        className={`text-lg md:text-xl font-bold ${c.text} h-8 flex items-end justify-center`}
       >
         {metric}
       </motion.div>
 
-      {/* 3D Bar */}
-      <div className="relative h-32 md:h-40 w-14 md:w-16" style={{ perspective: "400px" }}>
+      {/* 3D Bar — fixed height container, bar grows from bottom */}
+      <div className="relative h-28 md:h-36 w-12 md:w-14 mt-2" style={{ perspective: "400px" }}>
         <motion.div
           initial={{ scaleY: 0 }}
           animate={isInView ? { scaleY: 1 } : {}}
@@ -110,21 +110,21 @@ export function MetricBar3D({
           <div className="absolute inset-y-0 left-1 w-[2px] bg-white/20 rounded-full" />
         </motion.div>
 
-        {/* Base shadow */}
-        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-12 h-2 bg-primary/10 rounded-full blur-sm" />
+        {/* Base line */}
+        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-border" />
       </div>
 
-      {/* Labels */}
+      {/* Sub + Label — fixed height area */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : {}}
         transition={{ delay: delay + 0.5, duration: 0.4 }}
-        className="text-center"
+        className="text-center mt-2 h-10 flex flex-col justify-start"
       >
         {sub && (
           <div className="text-xs font-semibold text-accent">{sub}</div>
         )}
-        <div className="text-xs text-muted-foreground leading-tight max-w-[80px]">
+        <div className="text-[11px] text-muted-foreground leading-tight">
           {label}
         </div>
       </motion.div>
