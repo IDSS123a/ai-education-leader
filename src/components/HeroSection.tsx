@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { CVRequestDialog } from "@/components/CVRequestDialog";
 import davorProfile from "@/assets/davor-profile-real.png";
 import { HeroGlobe } from "@/components/HeroGlobe";
+import { MetricBarGroup } from "@/components/MetricBar3D";
 
-const highlights = [
-  { metric: "25+", label: "Years Experience" },
-  { metric: "€16M+", label: "Income Growth", sub: "33%" },
-  { metric: "673%", label: "Net Profit Inc." },
-  { metric: "€11M+", label: "Contracts Secured" },
+const heroMetrics = [
+  { metric: "25+", label: "Years Experience", percentage: 85, color: "primary" as const },
+  { metric: "€16M+", label: "Income Growth", sub: "33%", percentage: 95, color: "accent" as const },
+  { metric: "673%", label: "Net Profit Inc.", percentage: 100, color: "purple" as const },
+  { metric: "€11M+", label: "Contracts Secured", percentage: 75, color: "amber" as const },
 ];
 
 const industries = [
