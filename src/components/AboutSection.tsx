@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import awardCeremony from "@/assets/award-ceremony.jpg";
 import speakingEvent from "@/assets/speaking-event.jpg";
 import ImageLightbox from "./ImageLightbox";
+import { MetricBarGroup } from "@/components/MetricBar3D";
 
 const stats = [
   { value: "25+", label: "Years Experience" },
