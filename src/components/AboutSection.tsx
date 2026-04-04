@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import awardCeremony from "@/assets/award-ceremony.jpg";
 import speakingEvent from "@/assets/speaking-event.jpg";
 import ImageLightbox from "./ImageLightbox";
+import { MetricBarGroup } from "@/components/MetricBar3D";
 
 const stats = [
   { value: "25+", label: "Years Experience" },
@@ -142,21 +143,15 @@ export function AboutSection() {
               transition={{ delay: 0.5 }}
               className="space-y-6"
             >
-              <div className="grid grid-cols-2 gap-6">
-                {stats.map((stat, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                    transition={{ delay: 0.6 + index * 0.1 }}
-                    className="bg-background p-6 lg:p-8 rounded-2xl text-center shadow-card hover:shadow-card-hover transition-shadow"
-                  >
-                    <div className="text-3xl lg:text-4xl font-bold text-primary mb-2">
-                      {stat.value}
-                    </div>
-                    <div className="text-sm text-muted-foreground">{stat.label}</div>
-                  </motion.div>
-                ))}
+              <div className="bg-card/60 backdrop-blur-sm rounded-2xl border border-border/50 p-6 shadow-lg">
+                <MetricBarGroup
+                  metrics={[
+                    { metric: "25+", label: "Years Experience", percentage: 85, color: "primary" },
+                    { metric: "€16M", label: "Operating Income", percentage: 95, color: "accent" },
+                    { metric: "90%", label: "Revenue Boost", percentage: 90, color: "purple" },
+                    { metric: "500+", label: "Professionals Led", percentage: 70, color: "amber" },
+                  ]}
+                />
               </div>
 
               {/* Achievement Images */}

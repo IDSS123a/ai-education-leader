@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { CVRequestDialog } from "@/components/CVRequestDialog";
 import davorProfile from "@/assets/davor-profile-real.png";
 import { HeroGlobe } from "@/components/HeroGlobe";
+import { MetricBarGroup } from "@/components/MetricBar3D";
 
-const highlights = [
-  { metric: "25+", label: "Years Experience" },
-  { metric: "€16M+", label: "Income Growth", sub: "33%" },
-  { metric: "673%", label: "Net Profit Inc." },
-  { metric: "€11M+", label: "Contracts Secured" },
+const heroMetrics = [
+  { metric: "25+", label: "Years Experience", percentage: 85, color: "primary" as const },
+  { metric: "€16M+", label: "Income Growth", sub: "33%", percentage: 95, color: "accent" as const },
+  { metric: "673%", label: "Net Profit Inc.", percentage: 100, color: "purple" as const },
+  { metric: "€11M+", label: "Contracts Secured", percentage: 75, color: "amber" as const },
 ];
 
 const industries = [
@@ -176,30 +177,14 @@ export function HeroSection() {
               </div>
             </div>
 
-            {/* Key Metrics */}
+            {/* 3D Metric Bars */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-lg"
+              className="w-full bg-card/60 backdrop-blur-sm rounded-2xl border border-border/50 p-6 shadow-lg"
             >
-              {highlights.map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.95 + index * 0.08 }}
-                  className="text-center bg-card p-4 rounded-xl border border-border"
-                >
-                  <div className="text-xl md:text-2xl font-bold text-primary">
-                    {item.metric}
-                  </div>
-                  {item.sub && (
-                    <div className="text-xs text-accent font-medium">{item.sub}</div>
-                  )}
-                  <div className="text-xs text-muted-foreground">{item.label}</div>
-                </motion.div>
-              ))}
+              <MetricBarGroup metrics={heroMetrics} />
             </motion.div>
           </motion.div>
         </div>
