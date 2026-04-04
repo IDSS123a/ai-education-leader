@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { Building2, TrendingUp, Users, Briefcase, Landmark, Heart } from "lucide-react";
+import { MetricBar3D } from "@/components/MetricBar3D";
+import { GlassCard } from "@/components/GlassCard";
 
 const experiences = [
   {
