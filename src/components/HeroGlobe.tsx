@@ -1,8 +1,56 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+
+interface TooltipState {
+  visible: boolean;
+  x: number;
+  y: number;
+  name: string;
+}
 
 export function HeroGlobe() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [activeCount, setActiveCount] = useState(0);
+  const [tooltip, setTooltip] = useState<TooltipState>({ visible: false, x: 0, y: 0, name: "" });
+
+  // Store projected nodes for hit testing
+  const projectedNodesRef = useRef<{ x: number; y: number; z: number; name: string; active: boolean; screenX: number; screenY: number }[]>([]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+
+    let found = false;
+    for (const node of projectedNodesRef.current) {
+      if (node.z < -0.15) continue;
+      const dx = mx - node.x;
+      const dy = my - node.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const hitRadius = node.active ? 12 : 6;
+      if (dist < hitRadius) {
+        setTooltip({
+          visible: true,
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top - 30,
+          name: node.name,
+        });
+        found = true;
+        break;
+      }
+    }
+    if (!found && tooltip.visible) {
+      setTooltip(prev => ({ ...prev, visible: false }));
+    }
+  }, [tooltip.visible]);
+
+  const handleMouseLeave = useCallback(() => {
+    setTooltip(prev => ({ ...prev, visible: false }));
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -19,7 +67,6 @@ export function HeroGlobe() {
     const cy = size / 2;
     const radius = size * 0.4;
 
-    // Real-world city coordinates (lat, lon) → sphere positions
     const cities = [
       { name: "New York", lat: 40.7, lon: -74.0 },
       { name: "London", lat: 51.5, lon: -0.1 },
@@ -73,21 +120,18 @@ export function HeroGlobe() {
       { name: "Hanoi", lat: 21.0, lon: 105.9 },
     ];
 
-    // Convert lat/lon to sphere coordinates
     const cityNodes = cities.map((c) => {
       const phi = ((90 - c.lat) / 180) * Math.PI;
       const theta = ((c.lon + 180) / 360) * Math.PI * 2;
       return { ...c, phi, theta };
     });
 
-    // Active companies state — random subset that changes over time
     let activeSet = new Set<number>();
     let pulsePhase: number[] = new Array(cities.length).fill(0);
 
     const refreshActive = () => {
-      const count = 20 + Math.floor(Math.random() * 31); // 20-50
+      const count = 20 + Math.floor(Math.random() * 31);
       const indices = Array.from({ length: cities.length }, (_, i) => i);
-      // Shuffle
       for (let i = indices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [indices[i], indices[j]] = [indices[j], indices[i]];
@@ -110,7 +154,6 @@ export function HeroGlobe() {
       };
     };
 
-    // Wireframe
     const meridians = 8;
     const parallels = 6;
 
@@ -118,7 +161,6 @@ export function HeroGlobe() {
       ctx.clearRect(0, 0, size, size);
       rotation += 0.0015;
 
-      // Outer subtle glow
       const outerGlow = ctx.createRadialGradient(cx, cy, radius * 0.85, cx, cy, radius * 1.2);
       outerGlow.addColorStop(0, "hsla(210, 82%, 55%, 0.04)");
       outerGlow.addColorStop(1, "hsla(210, 82%, 55%, 0)");
@@ -127,7 +169,6 @@ export function HeroGlobe() {
       ctx.arc(cx, cy, radius * 1.2, 0, Math.PI * 2);
       ctx.fill();
 
-      // Wireframe meridians
       for (let m = 0; m < meridians; m++) {
         const mTheta = (m / meridians) * Math.PI * 2;
         ctx.beginPath();
@@ -144,7 +185,6 @@ export function HeroGlobe() {
         ctx.stroke();
       }
 
-      // Wireframe parallels
       for (let p = 1; p < parallels; p++) {
         const phi = (p / parallels) * Math.PI;
         ctx.beginPath();
@@ -161,7 +201,6 @@ export function HeroGlobe() {
         ctx.stroke();
       }
 
-      // Project all city nodes
       const projected = cityNodes.map((n, i) => ({
         ...project(n.phi, n.theta, rotation),
         index: i,
@@ -169,7 +208,17 @@ export function HeroGlobe() {
         name: n.name,
       }));
 
-      // Draw connections only between active nodes
+      // Store for hit testing
+      projectedNodesRef.current = projected.map(p => ({
+        x: p.x,
+        y: p.y,
+        z: p.z,
+        name: p.name,
+        active: p.active,
+        screenX: p.x,
+        screenY: p.y,
+      }));
+
       const activeNodes = projected.filter((p) => p.active && p.z > -0.1);
       for (let i = 0; i < activeNodes.length; i++) {
         for (let j = i + 1; j < activeNodes.length; j++) {
@@ -190,17 +239,14 @@ export function HeroGlobe() {
         }
       }
 
-      // Draw city nodes
       for (const p of projected) {
         if (p.z < -0.15) continue;
-
         pulsePhase[p.index] = (pulsePhase[p.index] + 0.03) % (Math.PI * 2);
 
         if (p.active) {
           const pulse = 0.6 + Math.sin(pulsePhase[p.index]) * 0.4;
           const nodeSize = 2.5 + p.opacity * 2;
 
-          // Active glow ring
           ctx.beginPath();
           ctx.arc(p.x, p.y, nodeSize * 5, 0, Math.PI * 2);
           const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, nodeSize * 5);
@@ -209,13 +255,11 @@ export function HeroGlobe() {
           ctx.fillStyle = grd;
           ctx.fill();
 
-          // Active node (green/accent)
           ctx.beginPath();
           ctx.arc(p.x, p.y, nodeSize, 0, Math.PI * 2);
           ctx.fillStyle = `hsla(160, 64%, 55%, ${p.opacity * 0.9 * pulse})`;
           ctx.fill();
         } else {
-          // Inactive node (dim blue)
           const nodeSize = 1.2 + p.opacity * 1;
           ctx.beginPath();
           ctx.arc(p.x, p.y, nodeSize, 0, Math.PI * 2);
@@ -224,7 +268,6 @@ export function HeroGlobe() {
         }
       }
 
-      // Core glow
       const coreGrd = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.3);
       coreGrd.addColorStop(0, "hsla(160, 64%, 50%, 0.08)");
       coreGrd.addColorStop(1, "hsla(210, 82%, 55%, 0)");
@@ -244,12 +287,28 @@ export function HeroGlobe() {
   }, []);
 
   return (
-    <div className="absolute inset-0 w-full h-full pointer-events-none">
+    <div ref={containerRef} className="absolute inset-0 w-full h-full pointer-events-none">
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
+        className="absolute inset-0 w-full h-full pointer-events-auto cursor-crosshair"
         style={{ opacity: 0.75 }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
       />
+      {/* Tooltip */}
+      {tooltip.visible && (
+        <div
+          className="absolute z-50 px-2.5 py-1 bg-card/95 backdrop-blur-sm rounded-lg border border-accent/30 text-xs font-medium text-accent shadow-lg pointer-events-none whitespace-nowrap"
+          style={{
+            left: tooltip.x,
+            top: tooltip.y,
+            transform: "translateX(-50%)",
+          }}
+        >
+          <span className="inline-block w-1.5 h-1.5 bg-accent rounded-full mr-1.5 animate-pulse" />
+          {tooltip.name}
+        </div>
+      )}
       {/* Active companies counter */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 bg-card/70 backdrop-blur-sm rounded-full border border-border/40 text-[10px] text-muted-foreground">
         <span className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
