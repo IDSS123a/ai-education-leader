@@ -58,7 +58,8 @@ export function PortfolioDetailCard({ item, onClose }: PortfolioDetailCardProps)
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed inset-4 max-h-[92vh] sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg sm:max-h-[85vh] bg-card rounded-2xl border border-border shadow-2xl z-50 overflow-hidden flex flex-col"
+            className="fixed inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg sm:max-h-[80vh] bg-card rounded-2xl border border-border shadow-2xl z-50 overflow-hidden flex flex-col"
+            style={{ maxHeight: "min(80vh, 700px)" }}
           >
             {/* Header with thumbnail */}
             <div className="relative aspect-[16/9] bg-muted/30 flex-shrink-0">
