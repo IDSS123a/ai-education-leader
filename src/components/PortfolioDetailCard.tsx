@@ -52,15 +52,15 @@ export function PortfolioDetailCard({ item, onClose }: PortfolioDetailCardProps)
             onClick={onClose}
           />
 
-          {/* Card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg sm:max-h-[80vh] bg-card rounded-2xl border border-border shadow-2xl z-50 overflow-hidden flex flex-col"
-            style={{ maxHeight: "min(80vh, 700px)" }}
-          >
+          {/* Centering wrapper */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="w-full max-w-lg max-h-[80vh] bg-card rounded-2xl border border-border shadow-2xl overflow-hidden flex flex-col pointer-events-auto"
+            >
             {/* Header with thumbnail */}
             <div className="relative aspect-[16/9] bg-muted/30 flex-shrink-0">
               {getPortfolioImage(item.id) ? (
