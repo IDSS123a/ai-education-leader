@@ -153,7 +153,8 @@ export function PortfolioDetailCard({ item, onClose }: PortfolioDetailCardProps)
                 </div>
               </div>
             </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
