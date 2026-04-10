@@ -6,13 +6,14 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // Verify admin auth
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(
@@ -36,7 +37,6 @@ serve(async (req) => {
       );
     }
 
-    // Check admin role
     const userId = claimsData.claims.sub as string;
     const serviceClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const { data: roleData } = await serviceClient
@@ -63,9 +63,10 @@ serve(async (req) => {
       );
     }
 
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    if (!RESEND_API_KEY) {
-      console.error("RESEND_API_KEY not configured");
+    if (!LOVABLE_API_KEY || !RESEND_API_KEY) {
+      console.error("Missing API keys");
       return new Response(
         JSON.stringify({ error: "Email service not configured" }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -112,11 +113,12 @@ serve(async (req) => {
 
     console.log(`Sending ${action} notification to:`, email.substring(0, 3) + "***");
 
-    const res = await fetch("https://api.resend.com/emails", {
+    const res = await fetch(`${GATEWAY_URL}/emails`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
+        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "X-Connection-Api-Key": RESEND_API_KEY,
       },
       body: JSON.stringify({
         from: "Davor Mulalić <noreply@ai-studio.wiki>",

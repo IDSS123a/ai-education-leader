@@ -5,6 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function sanitize(input: string | undefined | null, maxLength: number): string {
@@ -32,9 +33,10 @@ serve(async (req) => {
       );
     }
 
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    if (!RESEND_API_KEY) {
-      console.error("RESEND_API_KEY not configured");
+    if (!LOVABLE_API_KEY || !RESEND_API_KEY) {
+      console.error("Missing API keys - LOVABLE_API_KEY:", !!LOVABLE_API_KEY, "RESEND_API_KEY:", !!RESEND_API_KEY);
       return new Response(
         JSON.stringify({ error: "Email service not configured" }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -59,11 +61,12 @@ serve(async (req) => {
       </div>
     `;
 
-    const res = await fetch("https://api.resend.com/emails", {
+    const res = await fetch(`${GATEWAY_URL}/emails`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
+        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "X-Connection-Api-Key": RESEND_API_KEY,
       },
       body: JSON.stringify({
         from: "Davor Mulalić Website <noreply@ai-studio.wiki>",
