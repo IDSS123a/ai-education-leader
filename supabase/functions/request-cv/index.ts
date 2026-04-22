@@ -109,29 +109,31 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("CV request created successfully");
 
-    // Send admin notification email (non-blocking — failures don't break the request)
+    // Send admin notification email via Lovable Connector Gateway (non-blocking)
     try {
-      const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-      if (RESEND_API_KEY) {
-        const adminEmail = "mulalic71@gmail.com";
-        const subject = `[New CV Request — ${email}]`;
+      const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+      const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY_1") || Deno.env.get("RESEND_API_KEY");
+      if (LOVABLE_API_KEY && RESEND_API_KEY) {
         const html = `
-          <h2>New CV Download Request</h2>
-          <p><strong>From:</strong> ${name || "(no name)"} &lt;${email}&gt;</p>
-          <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
-          <p>Review and approve/deny in the Admin panel.</p>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #1a1a1a; border-bottom: 2px solid #c8a870; padding-bottom: 10px;">New CV Download Request</h2>
+            <p><strong>From:</strong> ${name || "(no name)"} &lt;${email}&gt;</p>
+            <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+            <p>Review and approve/deny in the Admin panel at <a href="https://davormulalic.com/admin">/admin</a>.</p>
+          </div>
         `;
-        const emailResp = await fetch("https://api.resend.com/emails", {
+        const emailResp = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${RESEND_API_KEY}`,
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+            "X-Connection-Api-Key": RESEND_API_KEY,
           },
           body: JSON.stringify({
             from: "CV Request <onboarding@resend.dev>",
-            to: [adminEmail],
+            to: ["mulalic71@gmail.com"],
             reply_to: email,
-            subject,
+            subject: `[New CV Request — ${email}]`,
             html,
           }),
         });
@@ -142,7 +144,7 @@ const handler = async (req: Request): Promise<Response> => {
           console.log("Admin notification email sent");
         }
       } else {
-        console.warn("RESEND_API_KEY not configured — skipping admin notification");
+        console.warn("Email keys not configured — skipping admin notification");
       }
     } catch (notifyErr: any) {
       console.error("Admin notification error:", notifyErr.message);
