@@ -64,7 +64,7 @@ serve(async (req) => {
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY_1") || Deno.env.get("RESEND_API_KEY");
     if (!LOVABLE_API_KEY || !RESEND_API_KEY) {
       console.error("Missing API keys");
       return new Response(
@@ -121,8 +121,9 @@ serve(async (req) => {
         "X-Connection-Api-Key": RESEND_API_KEY,
       },
       body: JSON.stringify({
-        from: "Davor Mulalić <noreply@ai-studio.wiki>",
+        from: "Davor Mulalić <onboarding@resend.dev>",
         to: [email],
+        reply_to: "mulalic.davor@outlook.com",
         subject,
         html: htmlBody,
       }),
