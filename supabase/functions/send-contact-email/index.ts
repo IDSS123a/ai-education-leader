@@ -69,7 +69,7 @@ serve(async (req) => {
         "X-Connection-Api-Key": RESEND_API_KEY,
       },
       body: JSON.stringify({
-        from: "Davor Mulalić Website <noreply@ai-studio.wiki>",
+        from: "Davor Mulalić Website <onboarding@resend.dev>",
         to: ["mulalic.davor@outlook.com"],
         reply_to: email,
         subject: `[Website Contact] ${interest || "General Inquiry"} from ${name}`,
