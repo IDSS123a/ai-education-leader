@@ -56,11 +56,12 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
         name: formData.name.trim() || null,
       };
       
-      const { error } = await supabase.functions.invoke("request-cv", {
+      const { data, error } = await supabase.functions.invoke("request-cv", {
         body: sanitizedData,
       });
 
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       setIsSuccess(true);
       toast({
@@ -68,9 +69,11 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
         description: "You will receive an email once your request is reviewed.",
       });
     } catch (error: any) {
+      console.error("CV request error:", error);
+      const reason = error?.message || "Unknown error";
       toast({
-        title: "Error",
-        description: error.message || "Failed to submit request. Please try again.",
+        title: "Could not submit your request",
+        description: `Reason: ${reason}. Please try again in a few minutes, or contact mulalic.davor@outlook.com directly.`,
         variant: "destructive",
       });
     } finally {
