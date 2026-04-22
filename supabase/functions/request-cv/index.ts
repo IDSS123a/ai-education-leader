@@ -109,6 +109,45 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("CV request created successfully");
 
+    // Send admin notification email (non-blocking — failures don't break the request)
+    try {
+      const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+      if (RESEND_API_KEY) {
+        const adminEmail = "mulalic71@gmail.com";
+        const subject = `[New CV Request — ${email}]`;
+        const html = `
+          <h2>New CV Download Request</h2>
+          <p><strong>From:</strong> ${name || "(no name)"} &lt;${email}&gt;</p>
+          <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+          <p>Review and approve/deny in the Admin panel.</p>
+        `;
+        const emailResp = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: "CV Request <onboarding@resend.dev>",
+            to: [adminEmail],
+            reply_to: email,
+            subject,
+            html,
+          }),
+        });
+        if (!emailResp.ok) {
+          const errText = await emailResp.text();
+          console.error("Admin notification email failed:", emailResp.status, errText);
+        } else {
+          console.log("Admin notification email sent");
+        }
+      } else {
+        console.warn("RESEND_API_KEY not configured — skipping admin notification");
+      }
+    } catch (notifyErr: any) {
+      console.error("Admin notification error:", notifyErr.message);
+    }
+
     return new Response(
       JSON.stringify({ success: true, message: "Request submitted successfully", token: cvRequest.token }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
