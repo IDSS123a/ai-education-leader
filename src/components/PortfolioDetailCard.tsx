@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 import { X, Zap, AlertTriangle, Lightbulb, TrendingUp, Code2 } from "lucide-react";
 import { getPortfolioImage } from "./portfolioImages";
 
@@ -39,7 +40,7 @@ export function PortfolioDetailCard({ item, onClose }: PortfolioDetailCardProps)
   const accentClass = isApp ? "text-primary" : "text-accent";
   const accentBgClass = isApp ? "bg-primary/10 text-primary" : "bg-accent/10 text-accent";
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {item && (
         <>
@@ -157,6 +158,7 @@ export function PortfolioDetailCard({ item, onClose }: PortfolioDetailCardProps)
           </div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

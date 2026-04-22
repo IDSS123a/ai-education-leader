@@ -8,7 +8,7 @@ import { MetricBarGroup } from "@/components/MetricBar3D";
 
 const heroMetrics = [
   { metric: "25+", label: "Years Experience", percentage: 85, color: "primary" as const },
-  { metric: "€16M+", label: "Income Growth", sub: "33%", percentage: 95, color: "accent" as const },
+  { metric: "€16M+", label: "Income Growth", percentage: 95, color: "accent" as const },
   { metric: "673%", label: "Net Profit Inc.", percentage: 100, color: "purple" as const },
   { metric: "€11M+", label: "Contracts Secured", percentage: 75, color: "amber" as const },
 ];
