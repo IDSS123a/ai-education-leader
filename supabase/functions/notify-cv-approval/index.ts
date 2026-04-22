@@ -122,9 +122,9 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         from: "Davor Mulalić <onboarding@resend.dev>",
-        to: [email],
+        to: ["mulalic71@gmail.com"],
         reply_to: "mulalic.davor@outlook.com",
-        subject,
+        subject: `[CV Request — ${email}] ${subject}`,
         html: htmlBody,
       }),
     });
