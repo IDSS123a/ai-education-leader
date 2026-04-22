@@ -73,7 +73,7 @@ export function ContactSection() {
 
     setSending(true);
     try {
-      const { error } = await supabase.functions.invoke("send-contact-email", {
+      const { data, error } = await supabase.functions.invoke("send-contact-email", {
         body: {
           name: formData.name.trim(),
           email: formData.email.trim().toLowerCase(),
@@ -84,6 +84,7 @@ export function ContactSection() {
       });
 
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast({
         title: "Message Sent!",
@@ -91,9 +92,11 @@ export function ContactSection() {
       });
       setFormData({ name: "", email: "", organization: "", interest: "", message: "" });
     } catch (error: any) {
+      console.error("Contact form error:", error);
+      const reason = error?.message || "Unknown error";
       toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
+        title: "Could not send your message",
+        description: `Reason: ${reason}. Please try again in a few minutes, or email mulalic.davor@outlook.com directly.`,
         variant: "destructive",
       });
     } finally {
