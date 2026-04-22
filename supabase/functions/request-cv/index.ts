@@ -109,6 +109,47 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("CV request created successfully");
 
+    // Send admin notification email via Lovable Connector Gateway (non-blocking)
+    try {
+      const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+      const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY_1") || Deno.env.get("RESEND_API_KEY");
+      if (LOVABLE_API_KEY && RESEND_API_KEY) {
+        const html = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #1a1a1a; border-bottom: 2px solid #c8a870; padding-bottom: 10px;">New CV Download Request</h2>
+            <p><strong>From:</strong> ${name || "(no name)"} &lt;${email}&gt;</p>
+            <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+            <p>Review and approve/deny in the Admin panel at <a href="https://davormulalic.com/admin">/admin</a>.</p>
+          </div>
+        `;
+        const emailResp = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+            "X-Connection-Api-Key": RESEND_API_KEY,
+          },
+          body: JSON.stringify({
+            from: "CV Request <onboarding@resend.dev>",
+            to: ["mulalic71@gmail.com"],
+            reply_to: email,
+            subject: `[New CV Request — ${email}]`,
+            html,
+          }),
+        });
+        if (!emailResp.ok) {
+          const errText = await emailResp.text();
+          console.error("Admin notification email failed:", emailResp.status, errText);
+        } else {
+          console.log("Admin notification email sent");
+        }
+      } else {
+        console.warn("Email keys not configured — skipping admin notification");
+      }
+    } catch (notifyErr: any) {
+      console.error("Admin notification error:", notifyErr.message);
+    }
+
     return new Response(
       JSON.stringify({ success: true, message: "Request submitted successfully", token: cvRequest.token }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
