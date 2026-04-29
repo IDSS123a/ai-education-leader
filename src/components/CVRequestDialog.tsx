@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { cvRequestSchema } from "@/lib/validation";
 import { z } from "zod";
+import { RateLimitCountdown } from "@/components/RateLimitCountdown";
 
 interface CVRequestDialogProps {
   children: React.ReactNode;
@@ -25,6 +26,7 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [rateLimit, setRateLimit] = useState<{ retryAfter: number; endpoint: string } | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
