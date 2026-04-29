@@ -310,7 +310,7 @@ export default function Admin() {
         </motion.div>
 
         <Tabs defaultValue="cv" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="cv" className="flex items-center gap-2">
               <Mail className="w-4 h-4" />
               CV Requests ({pendingCVRequests.length})
@@ -318,6 +318,10 @@ export default function Admin() {
             <TabsTrigger value="consultations" className="flex items-center gap-2">
               <Video className="w-4 h-4" />
               Consultations ({pendingConsultations.length})
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="flex items-center gap-2">
+              <ScrollText className="w-4 h-4" />
+              Audit Log
             </TabsTrigger>
           </TabsList>
 
