@@ -601,6 +601,11 @@ export default function Admin() {
               )}
             </section>
           </TabsContent>
+
+          {/* Audit Log Tab */}
+          <TabsContent value="audit">
+            <AuditLogViewer />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
