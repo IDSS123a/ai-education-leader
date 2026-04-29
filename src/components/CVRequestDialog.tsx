@@ -174,6 +174,13 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
               </DialogHeader>
 
               <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                {rateLimit && (
+                  <RateLimitCountdown
+                    retryAfterSeconds={rateLimit.retryAfter}
+                    endpoint={rateLimit.endpoint}
+                    onComplete={() => setRateLimit(null)}
+                  />
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="name">Your Name (Optional)</Label>
                   <Input
