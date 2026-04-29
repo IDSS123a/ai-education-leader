@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Video, Loader2 } from "lucide-react";
 import { consultationRequestSchema } from "@/lib/validation";
 import { z } from "zod";
+import { RateLimitCountdown } from "@/components/RateLimitCountdown";
 
 interface ConsultationDialogProps {
   trigger: React.ReactNode;
@@ -17,6 +18,7 @@ interface ConsultationDialogProps {
 export function ConsultationDialog({ trigger }: ConsultationDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [rateLimit, setRateLimit] = useState<{ retryAfter: number; endpoint: string } | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,8 +27,7 @@ export function ConsultationDialog({ trigger }: ConsultationDialogProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate with Zod
+
     try {
       consultationRequestSchema.parse(formData);
     } catch (err) {
@@ -41,26 +42,53 @@ export function ConsultationDialog({ trigger }: ConsultationDialogProps) {
     }
 
     setLoading(true);
+    setRateLimit(null);
     try {
-      // Sanitize input before sending
       const sanitizedData = {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         message: formData.message.trim() || null,
       };
-      
-      const { error } = await supabase
-        .from("consultation_requests")
-        .insert(sanitizedData);
+
+      const { data, error } = await supabase.functions.invoke("submit-consultation", {
+        body: sanitizedData,
+      });
+
+      // Detect 429 from edge function
+      const ctx: any = (error as any)?.context;
+      if (ctx && typeof ctx.json === "function") {
+        try {
+          const errBody = await ctx.json();
+          if (errBody?.retry_after) {
+            setRateLimit({
+              retryAfter: Number(errBody.retry_after),
+              endpoint: errBody.endpoint || "consultation_request",
+            });
+            setLoading(false);
+            return;
+          }
+          if (errBody?.error) throw new Error(errBody.error);
+        } catch {
+          // fall through
+        }
+      }
 
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.retry_after) {
+        setRateLimit({
+          retryAfter: Number(data.retry_after),
+          endpoint: data.endpoint || "consultation_request",
+        });
+        setLoading(false);
+        return;
+      }
 
       toast({
         title: "Request submitted!",
         description: "Redirecting to booking page...",
       });
 
-      // Redirect to Zoho Bookings after a short delay
       setTimeout(() => {
         window.open("https://davormulali.zohobookings.eu/#/253150000000046052", "_blank");
         setOpen(false);
@@ -69,11 +97,20 @@ export function ConsultationDialog({ trigger }: ConsultationDialogProps) {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to submit request. Please try again.",
+        description: error?.message || "Failed to submit request. Please try again.",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      setTimeout(() => {
+        setRateLimit(null);
+      }, 300);
     }
   };
 
