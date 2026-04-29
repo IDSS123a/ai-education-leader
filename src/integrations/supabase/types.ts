@@ -179,6 +179,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_rate_limit_v2: {
+        Args: {
+          p_action_type: string
+          p_block_minutes?: number
+          p_identifier: string
+          p_max_attempts?: number
+          p_window_minutes?: number
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

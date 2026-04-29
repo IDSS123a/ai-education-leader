@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, XCircle, Clock, RefreshCw, Shield, Mail, User, Calendar, Video, MessageSquare, LogOut, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, Clock, RefreshCw, Shield, Mail, User, Calendar, Video, MessageSquare, LogOut, Loader2, ScrollText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { AuditLogViewer } from "@/components/AuditLogViewer";
 
 interface CVRequest {
   id: string;
@@ -87,21 +88,53 @@ export default function Admin() {
     }
   }, [isAdmin]);
 
+  const logAudit = async (
+    action: string,
+    target_table: string,
+    target_id: string | null,
+    old_value: any,
+    new_value: any
+  ) => {
+    if (!user) return;
+    try {
+      await supabase.from("admin_audit_log").insert({
+        admin_user_id: user.id,
+        action,
+        target_table,
+        target_id,
+        old_value,
+        new_value,
+        user_agent: navigator.userAgent,
+      });
+    } catch (err) {
+      console.error("Failed to write audit log:", err);
+    }
+  };
+
   const handleCVAction = async (token: string, action: "approve" | "reject") => {
     setProcessing(token);
     try {
-      // Find the request to get email/name
       const request = cvRequests.find(r => r.token === token);
-      
+      const newStatus = action === "approve" ? "approved" : "rejected";
+
       const { error } = await supabase
         .from("cv_requests")
-        .update({ 
-          status: action === "approve" ? "approved" : "rejected",
+        .update({
+          status: newStatus,
           processed_at: new Date().toISOString()
         })
         .eq("token", token);
 
       if (error) throw error;
+
+      // Audit log
+      await logAudit(
+        action === "approve" ? "cv_request.approved" : "cv_request.rejected",
+        "cv_requests",
+        request?.id ?? null,
+        { status: request?.status, email: request?.email },
+        { status: newStatus, email: request?.email }
+      );
 
       // Send email notification
       try {
@@ -113,9 +146,15 @@ export default function Admin() {
             token,
           },
         });
-      } catch (emailError) {
+      } catch (emailError: any) {
         console.error("Failed to send notification email:", emailError);
-        // Don't block the action if email fails
+        await logAudit(
+          "cv_request.notify_failed",
+          "cv_requests",
+          request?.id ?? null,
+          null,
+          { error: emailError?.message ?? String(emailError) }
+        );
       }
 
       toast({
@@ -126,6 +165,13 @@ export default function Admin() {
       fetchRequests();
     } catch (error: any) {
       console.error("Error processing request:", error);
+      await logAudit(
+        "cv_request.action_failed",
+        "cv_requests",
+        null,
+        { token, action },
+        { error: error?.message ?? String(error) }
+      );
       toast({
         title: "Error",
         description: "Failed to process request",
@@ -139,7 +185,8 @@ export default function Admin() {
   const handleConsultationAction = async (id: string, action: "confirm" | "complete") => {
     setProcessing(id);
     try {
-      const updateData = action === "confirm" 
+      const prev = consultations.find(c => c.id === id);
+      const updateData = action === "confirm"
         ? { status: "confirmed", confirmed_at: new Date().toISOString() }
         : { status: "completed" };
 
@@ -150,6 +197,14 @@ export default function Admin() {
 
       if (error) throw error;
 
+      await logAudit(
+        action === "confirm" ? "consultation.confirmed" : "consultation.completed",
+        "consultation_requests",
+        id,
+        { status: prev?.status },
+        updateData
+      );
+
       toast({
         title: action === "confirm" ? "Confirmed!" : "Completed!",
         description: `Consultation has been marked as ${action === "confirm" ? "confirmed" : "completed"}.`,
@@ -158,6 +213,13 @@ export default function Admin() {
       fetchRequests();
     } catch (error: any) {
       console.error("Error processing consultation:", error);
+      await logAudit(
+        "consultation.action_failed",
+        "consultation_requests",
+        id,
+        { action },
+        { error: error?.message ?? String(error) }
+      );
       toast({
         title: "Error",
         description: "Failed to process consultation",
@@ -248,7 +310,7 @@ export default function Admin() {
         </motion.div>
 
         <Tabs defaultValue="cv" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="cv" className="flex items-center gap-2">
               <Mail className="w-4 h-4" />
               CV Requests ({pendingCVRequests.length})
@@ -256,6 +318,10 @@ export default function Admin() {
             <TabsTrigger value="consultations" className="flex items-center gap-2">
               <Video className="w-4 h-4" />
               Consultations ({pendingConsultations.length})
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="flex items-center gap-2">
+              <ScrollText className="w-4 h-4" />
+              Audit Log
             </TabsTrigger>
           </TabsList>
 
@@ -534,6 +600,11 @@ export default function Admin() {
                 </div>
               )}
             </section>
+          </TabsContent>
+
+          {/* Audit Log Tab */}
+          <TabsContent value="audit">
+            <AuditLogViewer />
           </TabsContent>
         </Tabs>
       </div>

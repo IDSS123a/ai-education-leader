@@ -53,9 +53,9 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check rate limit (5 requests per 15 minutes per email)
-    const { data: rateLimitOk, error: rateLimitError } = await supabase
-      .rpc("check_rate_limit", {
+    // Check rate limit (5 requests per 15 minutes per email) — v2 returns retry_after
+    const { data: rateLimitData, error: rateLimitError } = await supabase
+      .rpc("check_rate_limit_v2", {
         p_identifier: email,
         p_action_type: "cv_request",
         p_max_attempts: 5,
@@ -67,11 +67,23 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("Rate limit check error:", rateLimitError);
     }
 
-    if (rateLimitOk === false) {
-      console.log("Rate limit exceeded for:", email.substring(0, 3) + "***");
+    if (rateLimitData && rateLimitData.allowed === false) {
+      const retryAfter = rateLimitData.retry_after ?? 60;
+      console.log("Rate limit exceeded for:", email.substring(0, 3) + "***", "retry_after:", retryAfter);
       return new Response(
-        JSON.stringify({ error: "Too many requests. Please try again later." }),
-        { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        JSON.stringify({
+          error: "Too many requests. Please wait before trying again.",
+          retry_after: retryAfter,
+          endpoint: "cv_request",
+        }),
+        {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            "Retry-After": String(retryAfter),
+            ...corsHeaders,
+          },
+        }
       );
     }
 

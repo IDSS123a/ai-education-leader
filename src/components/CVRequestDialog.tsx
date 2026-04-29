@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { cvRequestSchema } from "@/lib/validation";
 import { z } from "zod";
+import { RateLimitCountdown } from "@/components/RateLimitCountdown";
 
 interface CVRequestDialogProps {
   children: React.ReactNode;
@@ -25,6 +26,7 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [rateLimit, setRateLimit] = useState<{ retryAfter: number; endpoint: string } | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -48,20 +50,47 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
     }
 
     setIsSubmitting(true);
+    setRateLimit(null);
 
     try {
-      // Sanitize input before sending
       const sanitizedData = {
         email: formData.email.trim().toLowerCase(),
         name: formData.name.trim() || null,
       };
-      
+
       const { data, error } = await supabase.functions.invoke("request-cv", {
         body: sanitizedData,
       });
 
+      // Detect rate limit (429) — invoke surfaces it via FunctionsHttpError with context
+      const ctx: any = (error as any)?.context;
+      if (ctx && typeof ctx.json === "function") {
+        try {
+          const errBody = await ctx.json();
+          if (errBody?.retry_after) {
+            setRateLimit({
+              retryAfter: Number(errBody.retry_after),
+              endpoint: errBody.endpoint || "cv_request",
+            });
+            setIsSubmitting(false);
+            return;
+          }
+          if (errBody?.error) throw new Error(errBody.error);
+        } catch (parseErr) {
+          // fall through
+        }
+      }
+
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
+      if (data?.retry_after) {
+        setRateLimit({
+          retryAfter: Number(data.retry_after),
+          endpoint: data.endpoint || "cv_request",
+        });
+        setIsSubmitting(false);
+        return;
+      }
 
       setIsSuccess(true);
       toast({
@@ -87,6 +116,7 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
       // Reset state when closing
       setTimeout(() => {
         setIsSuccess(false);
+        setRateLimit(null);
         setFormData({ name: "", email: "" });
       }, 300);
     }
@@ -144,6 +174,13 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
               </DialogHeader>
 
               <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                {rateLimit && (
+                  <RateLimitCountdown
+                    retryAfterSeconds={rateLimit.retryAfter}
+                    endpoint={rateLimit.endpoint}
+                    onComplete={() => setRateLimit(null)}
+                  />
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="name">Your Name (Optional)</Label>
                   <Input
@@ -181,7 +218,7 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button type="submit" disabled={isSubmitting || !!rateLimit}>
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
