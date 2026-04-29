@@ -115,7 +115,7 @@ export function ConsultationDialog({ trigger }: ConsultationDialogProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
@@ -130,6 +130,13 @@ export function ConsultationDialog({ trigger }: ConsultationDialogProps) {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {rateLimit && (
+            <RateLimitCountdown
+              retryAfterSeconds={rateLimit.retryAfter}
+              endpoint={rateLimit.endpoint}
+              onComplete={() => setRateLimit(null)}
+            />
+          )}
           <div className="space-y-2">
             <Label htmlFor="name">Name *</Label>
             <Input
@@ -162,7 +169,7 @@ export function ConsultationDialog({ trigger }: ConsultationDialogProps) {
               rows={3}
             />
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading || !!rateLimit}>
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
