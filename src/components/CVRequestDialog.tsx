@@ -116,6 +116,7 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
       // Reset state when closing
       setTimeout(() => {
         setIsSuccess(false);
+        setRateLimit(null);
         setFormData({ name: "", email: "" });
       }, 300);
     }
