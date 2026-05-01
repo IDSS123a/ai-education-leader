@@ -5,6 +5,7 @@ import { CVRequestDialog } from "@/components/CVRequestDialog";
 import davorProfile from "@/assets/davor-profile-real.png";
 import { HeroGlobe } from "@/components/HeroGlobe";
 import { MetricBarGroup } from "@/components/MetricBar3D";
+import { track } from "@/lib/analytics";
 
 const heroMetrics = [
   { metric: "25+", label: "Years Experience", percentage: 85, color: "primary" as const },
@@ -109,13 +110,18 @@ export function HeroSection() {
               className="flex flex-col sm:flex-row gap-4 mb-8"
             >
               <Button size="lg" asChild className="gap-2">
-                <a href="#experience">
+                <a href="#experience" onClick={() => track("cta_view_experience_click", { location: "hero" })}>
                   View Experience
                   <ArrowRight className="w-4 h-4" />
                 </a>
               </Button>
               <CVRequestDialog>
-                <Button variant="outline" size="lg" className="gap-2">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="gap-2"
+                  onClick={() => track("cta_download_cv_click", { location: "hero" })}
+                >
                   <Download className="w-4 h-4" />
                   Download CV
                 </Button>

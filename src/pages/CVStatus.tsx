@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { emailSchema } from "@/lib/validation";
 import { z } from "zod";
+import { track } from "@/lib/analytics";
 
 export default function CVStatus() {
   const [email, setEmail] = useState("");
@@ -54,12 +55,15 @@ export default function CVStatus() {
 
       if (data && data.found) {
         setStatus({ found: true, ...data });
+        track("cv_status_check_success", { status: data.status || "unknown" });
       } else if (data && data.error) {
         throw new Error(data.error);
       } else {
         setStatus({ found: false });
+        track("cv_status_check_not_found");
       }
     } catch (error: any) {
+      track("cv_status_check_error", { reason: error?.message || "unknown" });
       toast({
         title: "Error",
         description: "Failed to check status. Please try again.",
@@ -130,6 +134,7 @@ export default function CVStatus() {
               href="/Davor_Mulalic_CV.pdf" 
               download
               className="inline-block"
+              onClick={() => track("cv_file_download", { source: "cv_status_page" })}
             >
               <Button size="lg" className="bg-green-600 hover:bg-green-700">
                 <Download className="w-5 h-5 mr-2" />
