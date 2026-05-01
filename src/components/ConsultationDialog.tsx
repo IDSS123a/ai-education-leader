@@ -10,6 +10,7 @@ import { Video, Loader2 } from "lucide-react";
 import { consultationRequestSchema } from "@/lib/validation";
 import { z } from "zod";
 import { RateLimitCountdown } from "@/components/RateLimitCountdown";
+import { track } from "@/lib/analytics";
 
 interface ConsultationDialogProps {
   trigger: React.ReactNode;
@@ -64,6 +65,7 @@ export function ConsultationDialog({ trigger }: ConsultationDialogProps) {
               retryAfter: Number(errBody.retry_after),
               endpoint: errBody.endpoint || "consultation_request",
             });
+            track("dialog_consultation_rate_limited", { retry_after: Number(errBody.retry_after) });
             setLoading(false);
             return;
           }
@@ -80,10 +82,12 @@ export function ConsultationDialog({ trigger }: ConsultationDialogProps) {
           retryAfter: Number(data.retry_after),
           endpoint: data.endpoint || "consultation_request",
         });
+        track("dialog_consultation_rate_limited", { retry_after: Number(data.retry_after) });
         setLoading(false);
         return;
       }
 
+      track("dialog_consultation_submit_success");
       toast({
         title: "Request submitted!",
         description: "Redirecting to booking page...",
@@ -95,6 +99,7 @@ export function ConsultationDialog({ trigger }: ConsultationDialogProps) {
         setFormData({ name: "", email: "", message: "" });
       }, 1000);
     } catch (error: any) {
+      track("dialog_consultation_submit_error", { reason: error?.message || "unknown" });
       toast({
         title: "Error",
         description: error?.message || "Failed to submit request. Please try again.",
@@ -106,6 +111,9 @@ export function ConsultationDialog({ trigger }: ConsultationDialogProps) {
   };
 
   const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen) {
+      track("dialog_consultation_open");
+    }
     setOpen(newOpen);
     if (!newOpen) {
       setTimeout(() => {

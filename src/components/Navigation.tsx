@@ -4,6 +4,8 @@ import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
 import { DMLogo } from "@/components/DMLogo";
+import { useTheme } from "@/hooks/useTheme";
+import { track } from "@/lib/analytics";
 
 const navItems = [
   { label: "Home", href: "#home" },
@@ -15,39 +17,6 @@ const navItems = [
   { label: "References", href: "#references" },
   { label: "Contact", href: "#contact" },
 ];
-
-function useTheme() {
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const stored = localStorage.getItem("theme");
-    if (stored) return stored === "dark";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (isDark) {
-      root.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      root.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [isDark]);
-
-  const toggle = () => {
-    // Add transition class before switching
-    const root = document.documentElement;
-    root.classList.add("theme-transition");
-    setIsDark((v) => !v);
-    // Remove transition class after animation completes
-    setTimeout(() => {
-      root.classList.remove("theme-transition");
-    }, 450);
-  };
-
-  return { isDark, toggle };
-}
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);

@@ -17,6 +17,7 @@ import { toast } from "@/hooks/use-toast";
 import { cvRequestSchema } from "@/lib/validation";
 import { z } from "zod";
 import { RateLimitCountdown } from "@/components/RateLimitCountdown";
+import { track } from "@/lib/analytics";
 
 interface CVRequestDialogProps {
   children: React.ReactNode;
@@ -72,6 +73,7 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
               retryAfter: Number(errBody.retry_after),
               endpoint: errBody.endpoint || "cv_request",
             });
+            track("dialog_cv_request_rate_limited", { retry_after: Number(errBody.retry_after) });
             setIsSubmitting(false);
             return;
           }
@@ -88,11 +90,13 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
           retryAfter: Number(data.retry_after),
           endpoint: data.endpoint || "cv_request",
         });
+        track("dialog_cv_request_rate_limited", { retry_after: Number(data.retry_after) });
         setIsSubmitting(false);
         return;
       }
 
       setIsSuccess(true);
+      track("dialog_cv_request_submit_success", { has_name: !!sanitizedData.name });
       toast({
         title: "Request Submitted!",
         description: "You will receive an email once your request is reviewed.",
@@ -100,6 +104,7 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
     } catch (error: any) {
       console.error("CV request error:", error);
       const reason = error?.message || "Unknown error";
+      track("dialog_cv_request_submit_error", { reason });
       toast({
         title: "Could not submit your request",
         description: `Reason: ${reason}. Please try again in a few minutes, or contact mulalic.davor@outlook.com directly.`,
@@ -111,6 +116,9 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
   };
 
   const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen) {
+      track("dialog_cv_request_open");
+    }
     setOpen(newOpen);
     if (!newOpen) {
       // Reset state when closing

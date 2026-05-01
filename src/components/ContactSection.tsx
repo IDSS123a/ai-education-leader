@@ -7,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import { contactFormSchema } from "@/lib/validation";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/analytics";
 
 const contactMethods = [
   {
@@ -86,6 +87,10 @@ export function ContactSection() {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
+      track("contact_form_submit_success", {
+        has_organization: !!formData.organization.trim(),
+        interest: formData.interest || "none",
+      });
       toast({
         title: "Message Sent!",
         description: "Thank you for reaching out. I'll get back to you soon.",
@@ -94,6 +99,7 @@ export function ContactSection() {
     } catch (error: any) {
       console.error("Contact form error:", error);
       const reason = error?.message || "Unknown error";
+      track("contact_form_submit_error", { reason });
       toast({
         title: "Could not send your message",
         description: `Reason: ${reason}. Please try again in a few minutes, or email mulalic.davor@outlook.com directly.`,
