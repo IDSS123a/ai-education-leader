@@ -63,9 +63,16 @@ export function ContactSection() {
       contactFormSchema.parse(formData);
     } catch (err) {
       if (err instanceof z.ZodError) {
+        const msg = err.errors[0].message;
+        track("contact_form_validation_error", {
+          source: "contact_section",
+          result: "validation_error",
+          error_code: "ZodError",
+          error_message: msg,
+        });
         toast({
           title: "Validation Error",
-          description: err.errors[0].message,
+          description: msg,
           variant: "destructive",
         });
         return;
@@ -88,6 +95,8 @@ export function ContactSection() {
       if (data?.error) throw new Error(data.error);
 
       track("contact_form_submit_success", {
+        source: "contact_section",
+        result: "success",
         has_organization: !!formData.organization.trim(),
         interest: formData.interest || "none",
       });
@@ -99,7 +108,12 @@ export function ContactSection() {
     } catch (error: any) {
       console.error("Contact form error:", error);
       const reason = error?.message || "Unknown error";
-      track("contact_form_submit_error", { reason });
+      track("contact_form_submit_error", {
+        source: "contact_section",
+        result: "error",
+        error_code: error?.name || "FetchError",
+        error_message: reason,
+      });
       toast({
         title: "Could not send your message",
         description: `Reason: ${reason}. Please try again in a few minutes, or email mulalic.davor@outlook.com directly.`,
