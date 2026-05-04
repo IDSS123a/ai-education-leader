@@ -30,6 +30,7 @@ export type AnalyticsEvent =
   | "contact_form_validation_error"
   // CV file download (after approval)
   | "cv_file_download"
+  | "cv_download_started"
   | "cv_download_confirm_open"
   | "cv_download_confirmed"
   | "cv_download_cancelled"

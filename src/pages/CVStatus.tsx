@@ -113,6 +113,7 @@ export default function CVStatus() {
   const handleConfirmDownload = () => {
     track("cv_download_confirmed", { source: "cv_status_page", result: "success" });
     track("cv_file_download", { source: "cv_status_page", result: "success" });
+
     // Trigger download
     const link = document.createElement("a");
     link.href = "/Davor_Mulalic_CV.pdf";
@@ -120,6 +121,19 @@ export default function CVStatus() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    // Mark download as actually started (post-click) for funnel precision
+    track("cv_download_started", {
+      source: "cv_status_page",
+      result: "success",
+      file: "Davor_Mulalic_CV.pdf",
+    });
+
+    toast({
+      title: "Download started",
+      description: "Your CV is downloading. Check your browser's downloads folder.",
+    });
+
     setConfirmOpen(false);
   };
 
