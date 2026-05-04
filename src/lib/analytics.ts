@@ -1,14 +1,13 @@
 /**
  * Lightweight client-side analytics helper.
  *
- * Events are emitted via:
+ * Sinks:
  *  1. `console.info("[analytics]", ...)` — captured by Lovable's project
- *     analytics dashboard (built on console + network logs).
- *  2. A custom `window` event "lovable:analytics" so any listener
- *     (e.g. future Plausible / GA / Umami integration) can subscribe
- *     without changing call-sites.
+ *     analytics dashboard.
+ *  2. Custom DOM event "lovable:analytics" for future integrations
+ *     (Plausible / GA / Umami) without changing call-sites.
  *
- * Zero external dependencies, zero cost, zero PII by default.
+ * Zero deps, zero cost, zero PII by default.
  */
 
 export type AnalyticsEvent =
@@ -28,15 +27,48 @@ export type AnalyticsEvent =
   // Contact form
   | "contact_form_submit_success"
   | "contact_form_submit_error"
+  | "contact_form_validation_error"
   // CV file download (after approval)
   | "cv_file_download"
-  // Status check
+  | "cv_download_confirm_open"
+  | "cv_download_confirmed"
+  | "cv_download_cancelled"
+  // CV status page
   | "cv_status_check_success"
   | "cv_status_check_not_found"
-  | "cv_status_check_error";
+  | "cv_status_check_error"
+  | "cv_status_validation_error"
+  // Section visibility
+  | "section_view";
+
+export type EventResult = "success" | "error" | "rate_limited" | "validation_error" | "info";
 
 export interface AnalyticsPayload {
+  /** Where the event originated, e.g. "hero", "navigation", "footer", "cv_status_page" */
+  source?: string;
+  /** Outcome class — drives funnel analysis */
+  result?: EventResult;
+  /** Machine-readable error code (e.g. "ZodError", "FunctionsHttpError", "not_found") */
+  error_code?: string;
+  /** Human-readable error message */
+  error_message?: string;
+  /** Last visible section when this event fired (auto-attached) */
+  last_section?: string;
   [key: string]: string | number | boolean | null | undefined;
+}
+
+/**
+ * Globally tracked "last visible section" — auto-attached to every event.
+ * Updated by useSectionTracking() via the section_view event.
+ */
+let lastVisibleSection: string | null = null;
+
+export function setLastVisibleSection(id: string): void {
+  lastVisibleSection = id;
+}
+
+export function getLastVisibleSection(): string | null {
+  return lastVisibleSection;
 }
 
 /**
@@ -48,15 +80,15 @@ export function track(event: AnalyticsEvent, payload: AnalyticsPayload = {}): vo
     const enriched = {
       event,
       timestamp: new Date().toISOString(),
-      path: typeof window !== "undefined" ? window.location.pathname : "",
+      route: typeof window !== "undefined" ? window.location.pathname : "",
+      referrer: typeof document !== "undefined" ? document.referrer || null : null,
+      last_section: lastVisibleSection,
       ...payload,
     };
 
-    // Primary sink: console.info → visible in Lovable analytics + dev console
     // eslint-disable-next-line no-console
     console.info("[analytics]", event, enriched);
 
-    // Secondary sink: custom DOM event for future integrations
     if (typeof window !== "undefined" && typeof CustomEvent !== "undefined") {
       window.dispatchEvent(
         new CustomEvent("lovable:analytics", { detail: enriched })

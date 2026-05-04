@@ -41,9 +41,16 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
       cvRequestSchema.parse(formData);
     } catch (err) {
       if (err instanceof z.ZodError) {
+        const msg = err.errors[0].message;
+        track("dialog_cv_request_submit_error", {
+          source: "cv_request_dialog",
+          result: "validation_error",
+          error_code: "ZodError",
+          error_message: msg,
+        });
         toast({
           title: "Validation Error",
-          description: err.errors[0].message,
+          description: msg,
           variant: "destructive",
         });
         return;
@@ -73,7 +80,13 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
               retryAfter: Number(errBody.retry_after),
               endpoint: errBody.endpoint || "cv_request",
             });
-            track("dialog_cv_request_rate_limited", { retry_after: Number(errBody.retry_after) });
+            track("dialog_cv_request_rate_limited", {
+              source: "cv_request_dialog",
+              result: "rate_limited",
+              error_code: "rate_limited",
+              retry_after: Number(errBody.retry_after),
+              endpoint: errBody.endpoint || "cv_request",
+            });
             setIsSubmitting(false);
             return;
           }
@@ -90,13 +103,23 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
           retryAfter: Number(data.retry_after),
           endpoint: data.endpoint || "cv_request",
         });
-        track("dialog_cv_request_rate_limited", { retry_after: Number(data.retry_after) });
+        track("dialog_cv_request_rate_limited", {
+          source: "cv_request_dialog",
+          result: "rate_limited",
+          error_code: "rate_limited",
+          retry_after: Number(data.retry_after),
+          endpoint: data.endpoint || "cv_request",
+        });
         setIsSubmitting(false);
         return;
       }
 
       setIsSuccess(true);
-      track("dialog_cv_request_submit_success", { has_name: !!sanitizedData.name });
+      track("dialog_cv_request_submit_success", {
+        source: "cv_request_dialog",
+        result: "success",
+        has_name: !!sanitizedData.name,
+      });
       toast({
         title: "Request Submitted!",
         description: "You will receive an email once your request is reviewed.",
@@ -104,7 +127,12 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
     } catch (error: any) {
       console.error("CV request error:", error);
       const reason = error?.message || "Unknown error";
-      track("dialog_cv_request_submit_error", { reason });
+      track("dialog_cv_request_submit_error", {
+        source: "cv_request_dialog",
+        result: "error",
+        error_code: error?.name || "FetchError",
+        error_message: reason,
+      });
       toast({
         title: "Could not submit your request",
         description: `Reason: ${reason}. Please try again in a few minutes, or contact mulalic.davor@outlook.com directly.`,
@@ -117,7 +145,7 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
 
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen) {
-      track("dialog_cv_request_open");
+      track("dialog_cv_request_open", { source: "cv_request_dialog", result: "info" });
     }
     setOpen(newOpen);
     if (!newOpen) {

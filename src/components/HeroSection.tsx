@@ -110,7 +110,15 @@ export function HeroSection() {
               className="flex flex-col sm:flex-row gap-4 mb-8"
             >
               <Button size="lg" asChild className="gap-2">
-                <a href="#experience" onClick={() => track("cta_view_experience_click", { location: "hero" })}>
+                <a
+                  href="#experience"
+                  onClick={() =>
+                    track("cta_view_experience_click", {
+                      source: "hero",
+                      result: "success",
+                    })
+                  }
+                >
                   View Experience
                   <ArrowRight className="w-4 h-4" />
                 </a>
@@ -120,7 +128,12 @@ export function HeroSection() {
                   variant="outline"
                   size="lg"
                   className="gap-2"
-                  onClick={() => track("cta_download_cv_click", { location: "hero" })}
+                  onClick={() =>
+                    track("cta_download_cv_click", {
+                      source: "hero",
+                      result: "success",
+                    })
+                  }
                 >
                   <Download className="w-4 h-4" />
                   Download CV
