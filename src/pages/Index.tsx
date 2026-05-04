@@ -11,8 +11,10 @@ import { ContactSection } from "@/components/ContactSection";
 import { Footer } from "@/components/Footer";
 import { ChatBot } from "@/components/ChatBot";
 import { ParticleBackground } from "@/components/ParticleBackground";
+import { useSectionTracking } from "@/hooks/useSectionTracking";
 
 const Index = () => {
+  useSectionTracking();
   return (
     <div className="min-h-screen relative">
       <ParticleBackground />

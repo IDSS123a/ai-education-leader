@@ -4,6 +4,16 @@ import { Search, CheckCircle, XCircle, Clock, Download, ArrowLeft, Mail, Loader2
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
@@ -14,6 +24,7 @@ import { track } from "@/lib/analytics";
 export default function CVStatus() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [status, setStatus] = useState<{
     found: boolean;
     status?: string;
@@ -23,15 +34,22 @@ export default function CVStatus() {
 
   const handleCheck = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate with Zod
     try {
       emailSchema.parse(email);
     } catch (err) {
       if (err instanceof z.ZodError) {
+        const msg = err.errors[0].message;
+        track("cv_status_validation_error", {
+          source: "cv_status_page",
+          result: "validation_error",
+          error_code: "ZodError",
+          error_message: msg,
+        });
         toast({
           title: "Validation Error",
-          description: err.errors[0].message,
+          description: msg,
           variant: "destructive",
         });
         return;
@@ -43,8 +61,7 @@ export default function CVStatus() {
 
     try {
       const sanitizedEmail = email.trim().toLowerCase();
-      
-      // Use edge function for secure status check
+
       const { data, error } = await supabase.functions.invoke("check-cv-status", {
         body: { email: sanitizedEmail },
       });
@@ -55,15 +72,29 @@ export default function CVStatus() {
 
       if (data && data.found) {
         setStatus({ found: true, ...data });
-        track("cv_status_check_success", { status: data.status || "unknown" });
+        track("cv_status_check_success", {
+          source: "cv_status_page",
+          result: "success",
+          status: data.status || "unknown",
+        });
       } else if (data && data.error) {
         throw new Error(data.error);
       } else {
         setStatus({ found: false });
-        track("cv_status_check_not_found");
+        track("cv_status_check_not_found", {
+          source: "cv_status_page",
+          result: "error",
+          error_code: "not_found",
+        });
       }
     } catch (error: any) {
-      track("cv_status_check_error", { reason: error?.message || "unknown" });
+      const msg = error?.message || "unknown";
+      track("cv_status_check_error", {
+        source: "cv_status_page",
+        result: "error",
+        error_code: error?.name || "FetchError",
+        error_message: msg,
+      });
       toast({
         title: "Error",
         description: "Failed to check status. Please try again.",
@@ -72,6 +103,29 @@ export default function CVStatus() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const openDownloadConfirm = () => {
+    track("cv_download_confirm_open", { source: "cv_status_page", result: "info" });
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDownload = () => {
+    track("cv_download_confirmed", { source: "cv_status_page", result: "success" });
+    track("cv_file_download", { source: "cv_status_page", result: "success" });
+    // Trigger download
+    const link = document.createElement("a");
+    link.href = "/Davor_Mulalic_CV.pdf";
+    link.download = "Davor_Mulalic_CV.pdf";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setConfirmOpen(false);
+  };
+
+  const handleCancelDownload = () => {
+    track("cv_download_cancelled", { source: "cv_status_page", result: "info" });
+    setConfirmOpen(false);
   };
 
   const getStatusDisplay = () => {
@@ -130,17 +184,14 @@ export default function CVStatus() {
             <p className="text-muted-foreground mb-6">
               Your request has been approved. You can now download the CV.
             </p>
-            <a 
-              href="/Davor_Mulalic_CV.pdf" 
-              download
-              className="inline-block"
-              onClick={() => track("cv_file_download", { source: "cv_status_page" })}
+            <Button
+              size="lg"
+              className="bg-green-600 hover:bg-green-700"
+              onClick={openDownloadConfirm}
             >
-              <Button size="lg" className="bg-green-600 hover:bg-green-700">
-                <Download className="w-5 h-5 mr-2" />
-                Download CV
-              </Button>
-            </a>
+              <Download className="w-5 h-5 mr-2" />
+              Download CV
+            </Button>
           </motion.div>
         );
 
@@ -229,6 +280,25 @@ export default function CVStatus() {
           </AnimatePresence>
         </Card>
       </div>
+
+      <AlertDialog open={confirmOpen} onOpenChange={(o) => (o ? setConfirmOpen(true) : handleCancelDownload())}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Download CV?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You're about to download the latest CV (PDF). Please use it for the purpose stated in
+              your request and do not redistribute without permission.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelDownload}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDownload}>
+              <Download className="w-4 h-4 mr-2" />
+              Confirm Download
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
