@@ -333,118 +333,12 @@ export default function Admin() {
 
           {/* CV Requests Tab */}
           <TabsContent value="cv">
-            {/* Pending CV Requests */}
-            <section className="mb-8">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-yellow-500" />
-                Pending Requests ({pendingCVRequests.length})
-              </h2>
-              
-              {loading ? (
-                <Card className="p-8 text-center">
-                  <RefreshCw className="w-8 h-8 animate-spin mx-auto text-muted-foreground" />
-                  <p className="mt-2 text-muted-foreground">Loading...</p>
-                </Card>
-              ) : pendingCVRequests.length === 0 ? (
-                <Card className="p-8 text-center">
-                  <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-2" />
-                  <p className="text-muted-foreground">No pending requests</p>
-                </Card>
-              ) : (
-                <div className="space-y-3">
-                  <AnimatePresence>
-                    {pendingCVRequests.map((request) => (
-                      <motion.div
-                        key={request.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: -100 }}
-                        layout
-                      >
-                        <Card className="p-4 hover:shadow-md transition-shadow">
-                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                {getCVStatusBadge(request.status)}
-                              </div>
-                              <div className="space-y-1">
-                                <p className="flex items-center gap-2 text-foreground">
-                                  <Mail className="w-4 h-4 text-muted-foreground" />
-                                  <span className="font-medium">{request.email}</span>
-                                </p>
-                                {request.name && (
-                                  <p className="flex items-center gap-2 text-muted-foreground">
-                                    <User className="w-4 h-4" />
-                                    {request.name}
-                                  </p>
-                                )}
-                                <p className="flex items-center gap-2 text-muted-foreground text-sm">
-                                  <Calendar className="w-4 h-4" />
-                                  {new Date(request.created_at).toLocaleString()}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                onClick={() => handleCVAction(request.token, "approve")}
-                                disabled={processing === request.token}
-                                className="bg-green-600 hover:bg-green-700"
-                              >
-                                <CheckCircle className="w-4 h-4 mr-1" />
-                                Approve
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => handleCVAction(request.token, "reject")}
-                                disabled={processing === request.token}
-                              >
-                                <XCircle className="w-4 h-4 mr-1" />
-                                Reject
-                              </Button>
-                            </div>
-                          </div>
-                        </Card>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
-              )}
-            </section>
-
-            {/* CV History */}
-            <section>
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-muted-foreground" />
-                History ({processedCVRequests.length})
-              </h2>
-              
-              {processedCVRequests.length === 0 ? (
-                <Card className="p-8 text-center">
-                  <p className="text-muted-foreground">No processed requests yet</p>
-                </Card>
-              ) : (
-                <div className="space-y-2">
-                  {processedCVRequests.map((request) => (
-                    <Card key={request.id} className="p-4 opacity-75">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            {getCVStatusBadge(request.status)}
-                            <span className="text-sm text-muted-foreground">
-                              {request.processed_at && new Date(request.processed_at).toLocaleString()}
-                            </span>
-                          </div>
-                          <p className="text-foreground">{request.email}</p>
-                          {request.name && <p className="text-sm text-muted-foreground">{request.name}</p>}
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </section>
+            <CVRequestsViewer
+              requests={cvRequests}
+              loading={loading}
+              processing={processing}
+              onAction={handleCVAction}
+            />
           </TabsContent>
 
           {/* Consultations Tab */}
