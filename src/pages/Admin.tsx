@@ -502,6 +502,11 @@ export default function Admin() {
             </section>
           </TabsContent>
 
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <AnalyticsViewer />
+          </TabsContent>
+
           {/* Audit Log Tab */}
           <TabsContent value="audit">
             <AuditLogViewer />
