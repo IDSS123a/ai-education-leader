@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, XCircle, Clock, RefreshCw, Shield, Mail, User, Calendar, Video, MessageSquare, LogOut, Loader2, ScrollText } from "lucide-react";
+import { CheckCircle, XCircle, Clock, RefreshCw, Shield, Mail, User, Calendar, Video, MessageSquare, LogOut, Loader2, ScrollText, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { AuditLogViewer } from "@/components/AuditLogViewer";
+import { AnalyticsViewer } from "@/components/AnalyticsViewer";
+import { CVRequestsViewer } from "@/components/CVRequestsViewer";
 
 interface CVRequest {
   id: string;
