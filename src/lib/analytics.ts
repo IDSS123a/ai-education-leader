@@ -72,13 +72,57 @@ export function getLastVisibleSection(): string | null {
   return lastVisibleSection;
 }
 
+const STORAGE_KEY = "lovable:analytics:events";
+const MAX_BUFFERED = 500;
+
+export interface StoredAnalyticsEvent extends AnalyticsPayload {
+  event: AnalyticsEvent;
+  timestamp: string;
+  route: string;
+  referrer: string | null;
+  last_section: string | null;
+}
+
+function appendToBuffer(entry: StoredAnalyticsEvent): void {
+  if (typeof localStorage === "undefined") return;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const arr: StoredAnalyticsEvent[] = raw ? JSON.parse(raw) : [];
+    arr.push(entry);
+    // Keep last MAX_BUFFERED only
+    const trimmed = arr.length > MAX_BUFFERED ? arr.slice(-MAX_BUFFERED) : arr;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+  } catch {
+    // Quota or parse error — ignore
+  }
+}
+
+export function getStoredEvents(): StoredAnalyticsEvent[] {
+  if (typeof localStorage === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as StoredAnalyticsEvent[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function clearStoredEvents(): void {
+  if (typeof localStorage === "undefined") return;
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 /**
  * Emit an analytics event. Safe to call from any component.
  * Never throws — analytics must never break user flow.
  */
 export function track(event: AnalyticsEvent, payload: AnalyticsPayload = {}): void {
   try {
-    const enriched = {
+    const enriched: StoredAnalyticsEvent = {
       event,
       timestamp: new Date().toISOString(),
       route: typeof window !== "undefined" ? window.location.pathname : "",
@@ -89,6 +133,8 @@ export function track(event: AnalyticsEvent, payload: AnalyticsPayload = {}): vo
 
     // eslint-disable-next-line no-console
     console.info("[analytics]", event, enriched);
+
+    appendToBuffer(enriched);
 
     if (typeof window !== "undefined" && typeof CustomEvent !== "undefined") {
       window.dispatchEvent(
