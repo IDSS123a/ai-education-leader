@@ -69,11 +69,13 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
 
     setIsSubmitting(true);
     setRateLimit(null);
+    setStatus({ phase: "sending" });
 
     try {
       const sanitizedData = {
         email: formData.email.trim().toLowerCase(),
         name: formData.name.trim() || null,
+        idempotencyKey,
       };
 
       const { data, error } = await supabase.functions.invoke("request-cv", {
@@ -90,6 +92,7 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
               retryAfter: Number(errBody.retry_after),
               endpoint: errBody.endpoint || "cv_request",
             });
+            setStatus({ phase: "idle" });
             track("dialog_cv_request_rate_limited", {
               source: "cv_request_dialog",
               result: "rate_limited",
@@ -113,6 +116,7 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
           retryAfter: Number(data.retry_after),
           endpoint: data.endpoint || "cv_request",
         });
+        setStatus({ phase: "idle" });
         track("dialog_cv_request_rate_limited", {
           source: "cv_request_dialog",
           result: "rate_limited",
@@ -124,19 +128,25 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
         return;
       }
 
+      const deduped = !!data?.alreadyExists;
       setIsSuccess(true);
+      setStatus({ phase: "success", deduped });
       track("dialog_cv_request_submit_success", {
         source: "cv_request_dialog",
         result: "success",
         has_name: !!sanitizedData.name,
+        deduped,
       });
       toast({
-        title: "Request Submitted!",
-        description: "You will receive an email once your request is reviewed.",
+        title: deduped ? "Already submitted" : "Request Submitted!",
+        description: deduped
+          ? "Your previous request is on file — no duplicate was created."
+          : "You will receive an email once your request is reviewed.",
       });
     } catch (error: any) {
       console.error("CV request error:", error);
       const reason = error?.message || "Unknown error";
+      setStatus({ phase: "error", reason });
       track("dialog_cv_request_submit_error", {
         source: "cv_request_dialog",
         result: "error",
