@@ -134,26 +134,41 @@ const handler = async (req: Request): Promise<Response> => {
             <p>Review and approve/deny in the Admin panel at <a href="https://davormulalic.com/admin">/admin</a>.</p>
           </div>
         `;
-        const emailResp = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-            "X-Connection-Api-Key": RESEND_API_KEY,
-          },
-          body: JSON.stringify({
-            from: "CV Request <onboarding@resend.dev>",
-            to: ["mulalic71@gmail.com"],
-            reply_to: email,
-            subject: `[New CV Request — ${email}]`,
-            html,
-          }),
+        const payload = JSON.stringify({
+          from: "CV Request <onboarding@resend.dev>",
+          to: ["mulalic71@gmail.com"],
+          reply_to: email,
+          subject: `[New CV Request — ${email}]`,
+          html,
         });
-        if (!emailResp.ok) {
-          const errText = await emailResp.text();
-          console.error("Admin notification email failed:", emailResp.status, errText);
-        } else {
-          console.log("Admin notification email sent");
+        let emailResp!: Response;
+        const maxAttempts = 4;
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          emailResp = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+              "X-Connection-Api-Key": RESEND_API_KEY,
+            },
+            body: payload,
+          });
+          if (emailResp.ok) {
+            console.log("Admin notification email sent");
+            break;
+          }
+          const retriable = emailResp.status === 429 || emailResp.status >= 500;
+          if (!retriable || attempt === maxAttempts) {
+            const errText = await emailResp.text();
+            console.error("Admin notification email failed:", emailResp.status, errText);
+            break;
+          }
+          const retryAfterHeader = Number(emailResp.headers.get("retry-after"));
+          const backoff = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
+            ? retryAfterHeader * 1000
+            : Math.min(2000, 250 * 2 ** (attempt - 1)) + Math.floor(Math.random() * 200);
+          console.warn(`Resend ${emailResp.status} on attempt ${attempt}, retrying in ${backoff}ms`);
+          await new Promise((r) => setTimeout(r, backoff));
         }
       } else {
         console.warn("Email keys not configured — skipping admin notification");
