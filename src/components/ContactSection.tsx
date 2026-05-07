@@ -313,6 +313,26 @@ export function ContactSection() {
                     placeholder="Tell me about your project or inquiry..."
                   />
                 </div>
+                {status.phase !== "idle" && (
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className={`mb-3 text-sm rounded-md px-3 py-2 border ${
+                      status.phase === "success"
+                        ? "bg-green-500/10 text-green-600 border-green-500/30"
+                        : status.phase === "error"
+                          ? "bg-red-500/10 text-red-600 border-red-500/30"
+                          : "bg-primary/10 text-primary border-primary/30"
+                    }`}
+                  >
+                    {status.phase === "sending" && "Sending… (retrying on transient errors)"}
+                    {status.phase === "success" &&
+                      (status.deduped
+                        ? "Already delivered — duplicate suppressed."
+                        : `Delivered in ${status.attempts} attempt${status.attempts === 1 ? "" : "s"} (${status.latency} ms).`)}
+                    {status.phase === "error" && `Send failed: ${status.reason}`}
+                  </div>
+                )}
                 <Button type="submit" size="lg" className="w-full" disabled={sending}>
                   {sending ? (
                     <>
