@@ -241,6 +241,23 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
                     onComplete={() => setRateLimit(null)}
                   />
                 )}
+                {status.phase !== "idle" && (
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className={`text-xs rounded-md px-2.5 py-1.5 border ${
+                      status.phase === "success"
+                        ? "bg-green-500/10 text-green-600 border-green-500/30"
+                        : status.phase === "error"
+                          ? "bg-red-500/10 text-red-600 border-red-500/30"
+                          : "bg-primary/10 text-primary border-primary/30"
+                    }`}
+                  >
+                    {status.phase === "sending" && "Submitting your request… (auto-retry on transient errors)"}
+                    {status.phase === "success" && (status.deduped ? "Already on file — duplicate suppressed." : "Request received.")}
+                    {status.phase === "error" && `Failed: ${status.reason}`}
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="name">Your Name (Optional)</Label>
                   <Input
