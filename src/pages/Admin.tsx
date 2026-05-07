@@ -512,6 +512,11 @@ export default function Admin() {
             <AnalyticsViewer />
           </TabsContent>
 
+          {/* Email Metrics Tab */}
+          <TabsContent value="emails">
+            <EmailMetricsViewer />
+          </TabsContent>
+
           {/* Audit Log Tab */}
           <TabsContent value="audit">
             <AuditLogViewer />
