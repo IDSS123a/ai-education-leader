@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { AuditLogViewer } from "@/components/AuditLogViewer";
 import { AnalyticsViewer } from "@/components/AnalyticsViewer";
 import { CVRequestsViewer } from "@/components/CVRequestsViewer";
+import { EmailMetricsViewer } from "@/components/EmailMetricsViewer";
 
 interface CVRequest {
   id: string;
@@ -312,7 +313,7 @@ export default function Admin() {
         </motion.div>
 
         <Tabs defaultValue="cv" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 mb-6">
             <TabsTrigger value="cv" className="flex items-center gap-2">
               <Mail className="w-4 h-4" />
               CV Requests ({pendingCVRequests.length})
@@ -324,6 +325,10 @@ export default function Admin() {
             <TabsTrigger value="analytics" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               Analytics
+            </TabsTrigger>
+            <TabsTrigger value="emails" className="flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              Email Metrics
             </TabsTrigger>
             <TabsTrigger value="audit" className="flex items-center gap-2">
               <ScrollText className="w-4 h-4" />
@@ -505,6 +510,11 @@ export default function Admin() {
           {/* Analytics Tab */}
           <TabsContent value="analytics">
             <AnalyticsViewer />
+          </TabsContent>
+
+          {/* Email Metrics Tab */}
+          <TabsContent value="emails">
+            <EmailMetricsViewer />
           </TabsContent>
 
           {/* Audit Log Tab */}

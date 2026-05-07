@@ -1,11 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { sendEmailWithRetry } from "../_shared/email-retry.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version, x-idempotency-key",
 };
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function sanitize(input: string | undefined | null, maxLength: number): string {
@@ -25,25 +26,17 @@ serve(async (req) => {
     const organization = sanitize(body.organization, 200);
     const interest = sanitize(body.interest, 100);
     const message = sanitize(body.message, 2000);
+    const idempotencyKey =
+      sanitize(body.idempotencyKey, 100) ||
+      req.headers.get("x-idempotency-key") ||
+      undefined;
 
     if (!name || !email || !emailRegex.test(email) || !message) {
       return new Response(
         JSON.stringify({ error: "Name, valid email, and message are required" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } },
       );
     }
-
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY_1") || Deno.env.get("RESEND_API_KEY");
-    if (!LOVABLE_API_KEY || !RESEND_API_KEY) {
-      console.error("Missing API keys - LOVABLE_API_KEY:", !!LOVABLE_API_KEY, "RESEND_API_KEY:", !!RESEND_API_KEY);
-      return new Response(
-        JSON.stringify({ error: "Email service not configured" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    console.log("Sending contact email from:", email.substring(0, 3) + "***");
 
     const htmlBody = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -61,53 +54,41 @@ serve(async (req) => {
       </div>
     `;
 
-    const payload = JSON.stringify({
-      from: "Davor Mulalić Website <onboarding@resend.dev>",
-      to: ["mulalic71@gmail.com"],
-      reply_to: email,
-      subject: `[Website Contact] ${interest || "General Inquiry"} from ${name}`,
-      html: htmlBody,
+    const result = await sendEmailWithRetry({
+      functionName: "send-contact-email",
+      recipientEmail: email,
+      idempotencyKey,
+      payload: {
+        from: "Davor Mulalić Website <onboarding@resend.dev>",
+        to: ["mulalic71@gmail.com"],
+        reply_to: email,
+        subject: `[Website Contact] ${interest || "General Inquiry"} from ${name}`,
+        html: htmlBody,
+      },
     });
 
-    let res!: Response;
-    let resData: any;
-    const maxAttempts = 4;
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      res = await fetch(`${GATEWAY_URL}/emails`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-          "X-Connection-Api-Key": RESEND_API_KEY,
-        },
-        body: payload,
-      });
-      resData = await res.json().catch(() => ({}));
-      if (res.ok) break;
-      const retriable = res.status === 429 || res.status >= 500;
-      if (!retriable || attempt === maxAttempts) {
-        console.error("Resend error:", res.status, JSON.stringify(resData));
-        throw new Error(`Email send failed [${res.status}]`);
-      }
-      const retryAfterHeader = Number(res.headers.get("retry-after"));
-      const backoff = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
-        ? retryAfterHeader * 1000
-        : Math.min(2000, 250 * 2 ** (attempt - 1)) + Math.floor(Math.random() * 200);
-      console.warn(`Resend ${res.status} on attempt ${attempt}, retrying in ${backoff}ms`);
-      await new Promise((r) => setTimeout(r, backoff));
+    if (!result.ok) {
+      console.error("Contact send failed:", result.errorCode, result.errorMessage);
+      return new Response(
+        JSON.stringify({ error: "Failed to send message. Please try again." }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } },
+      );
     }
 
-    console.log("Contact email sent successfully");
-
     return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      JSON.stringify({
+        success: true,
+        attempts: result.attempts,
+        latency_ms: result.totalMs,
+        deduped: !!result.deduped,
+      }),
+      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } },
     );
   } catch (error: any) {
     console.error("Error in send-contact-email:", error.message);
     return new Response(
       JSON.stringify({ error: "Failed to send message. Please try again." }),
-      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } },
     );
   }
 });

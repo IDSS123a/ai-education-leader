@@ -43,10 +43,20 @@ const interestOptions = [
   "Other",
 ];
 
+type SendStatus =
+  | { phase: "idle" }
+  | { phase: "sending"; attempt: number }
+  | { phase: "success"; attempts: number; latency: number; deduped: boolean }
+  | { phase: "error"; reason: string };
+
 export function ContactSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [sending, setSending] = useState(false);
+  const [status, setStatus] = useState<SendStatus>({ phase: "idle" });
+  const [idempotencyKey, setIdempotencyKey] = useState<string>(() =>
+    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+  );
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -80,6 +90,7 @@ export function ContactSection() {
     }
 
     setSending(true);
+    setStatus({ phase: "sending", attempt: 1 });
     try {
       const { data, error } = await supabase.functions.invoke("send-contact-email", {
         body: {
@@ -88,26 +99,41 @@ export function ContactSection() {
           organization: formData.organization.trim() || undefined,
           interest: formData.interest || undefined,
           message: formData.message.trim(),
+          idempotencyKey,
         },
       });
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
+      const attempts = Number(data?.attempts ?? 1);
+      const latency = Number(data?.latency_ms ?? 0);
+      const deduped = !!data?.deduped;
+      setStatus({ phase: "success", attempts, latency, deduped });
       track("contact_form_submit_success", {
         source: "contact_section",
         result: "success",
         has_organization: !!formData.organization.trim(),
         interest: formData.interest || "none",
+        attempts,
+        latency_ms: latency,
+        deduped,
       });
       toast({
-        title: "Message Sent!",
-        description: "Thank you for reaching out. I'll get back to you soon.",
+        title: deduped ? "Already sent" : "Message Sent!",
+        description: deduped
+          ? "We already received this message — no duplicate was sent."
+          : `Delivered in ${attempts} attempt${attempts === 1 ? "" : "s"} (${latency} ms).`,
       });
       setFormData({ name: "", email: "", organization: "", interest: "", message: "" });
+      // New idempotency key for the next submission
+      setIdempotencyKey(
+        typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+      );
     } catch (error: any) {
       console.error("Contact form error:", error);
       const reason = error?.message || "Unknown error";
+      setStatus({ phase: "error", reason });
       track("contact_form_submit_error", {
         source: "contact_section",
         result: "error",
@@ -287,6 +313,26 @@ export function ContactSection() {
                     placeholder="Tell me about your project or inquiry..."
                   />
                 </div>
+                {status.phase !== "idle" && (
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className={`mb-3 text-sm rounded-md px-3 py-2 border ${
+                      status.phase === "success"
+                        ? "bg-green-500/10 text-green-600 border-green-500/30"
+                        : status.phase === "error"
+                          ? "bg-red-500/10 text-red-600 border-red-500/30"
+                          : "bg-primary/10 text-primary border-primary/30"
+                    }`}
+                  >
+                    {status.phase === "sending" && "Sending… (retrying on transient errors)"}
+                    {status.phase === "success" &&
+                      (status.deduped
+                        ? "Already delivered — duplicate suppressed."
+                        : `Delivered in ${status.attempts} attempt${status.attempts === 1 ? "" : "s"} (${status.latency} ms).`)}
+                    {status.phase === "error" && `Send failed: ${status.reason}`}
+                  </div>
+                )}
                 <Button type="submit" size="lg" className="w-full" disabled={sending}>
                   {sending ? (
                     <>

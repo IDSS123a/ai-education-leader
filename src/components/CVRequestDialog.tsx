@@ -23,11 +23,21 @@ interface CVRequestDialogProps {
   children: React.ReactNode;
 }
 
+type SendStatus =
+  | { phase: "idle" }
+  | { phase: "sending" }
+  | { phase: "success"; deduped: boolean }
+  | { phase: "error"; reason: string };
+
 export function CVRequestDialog({ children }: CVRequestDialogProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [rateLimit, setRateLimit] = useState<{ retryAfter: number; endpoint: string } | null>(null);
+  const [status, setStatus] = useState<SendStatus>({ phase: "idle" });
+  const [idempotencyKey, setIdempotencyKey] = useState<string>(() =>
+    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+  );
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -59,11 +69,13 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
 
     setIsSubmitting(true);
     setRateLimit(null);
+    setStatus({ phase: "sending" });
 
     try {
       const sanitizedData = {
         email: formData.email.trim().toLowerCase(),
         name: formData.name.trim() || null,
+        idempotencyKey,
       };
 
       const { data, error } = await supabase.functions.invoke("request-cv", {
@@ -80,6 +92,7 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
               retryAfter: Number(errBody.retry_after),
               endpoint: errBody.endpoint || "cv_request",
             });
+            setStatus({ phase: "idle" });
             track("dialog_cv_request_rate_limited", {
               source: "cv_request_dialog",
               result: "rate_limited",
@@ -103,6 +116,7 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
           retryAfter: Number(data.retry_after),
           endpoint: data.endpoint || "cv_request",
         });
+        setStatus({ phase: "idle" });
         track("dialog_cv_request_rate_limited", {
           source: "cv_request_dialog",
           result: "rate_limited",
@@ -114,19 +128,25 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
         return;
       }
 
+      const deduped = !!data?.alreadyExists;
       setIsSuccess(true);
+      setStatus({ phase: "success", deduped });
       track("dialog_cv_request_submit_success", {
         source: "cv_request_dialog",
         result: "success",
         has_name: !!sanitizedData.name,
+        deduped,
       });
       toast({
-        title: "Request Submitted!",
-        description: "You will receive an email once your request is reviewed.",
+        title: deduped ? "Already submitted" : "Request Submitted!",
+        description: deduped
+          ? "Your previous request is on file — no duplicate was created."
+          : "You will receive an email once your request is reviewed.",
       });
     } catch (error: any) {
       console.error("CV request error:", error);
       const reason = error?.message || "Unknown error";
+      setStatus({ phase: "error", reason });
       track("dialog_cv_request_submit_error", {
         source: "cv_request_dialog",
         result: "error",
@@ -153,6 +173,10 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
       setTimeout(() => {
         setIsSuccess(false);
         setRateLimit(null);
+        setStatus({ phase: "idle" });
+        setIdempotencyKey(
+          typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+        );
         setFormData({ name: "", email: "" });
       }, 300);
     }
@@ -216,6 +240,23 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
                     endpoint={rateLimit.endpoint}
                     onComplete={() => setRateLimit(null)}
                   />
+                )}
+                {status.phase !== "idle" && (
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className={`text-xs rounded-md px-2.5 py-1.5 border ${
+                      status.phase === "success"
+                        ? "bg-green-500/10 text-green-600 border-green-500/30"
+                        : status.phase === "error"
+                          ? "bg-red-500/10 text-red-600 border-red-500/30"
+                          : "bg-primary/10 text-primary border-primary/30"
+                    }`}
+                  >
+                    {status.phase === "sending" && "Submitting your request… (auto-retry on transient errors)"}
+                    {status.phase === "success" && (status.deduped ? "Already on file — duplicate suppressed." : "Request received.")}
+                    {status.phase === "error" && `Failed: ${status.reason}`}
+                  </div>
                 )}
                 <div className="space-y-2">
                   <Label htmlFor="name">Your Name (Optional)</Label>

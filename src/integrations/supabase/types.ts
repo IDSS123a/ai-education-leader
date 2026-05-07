@@ -113,6 +113,48 @@ export type Database = {
         }
         Relationships: []
       }
+      email_send_metrics: {
+        Row: {
+          attempt_log: Json
+          attempts: number
+          created_at: string
+          function_name: string
+          id: string
+          idempotency_key: string | null
+          last_error_code: string | null
+          last_error_message: string | null
+          recipient_hash: string | null
+          status: string
+          total_latency_ms: number | null
+        }
+        Insert: {
+          attempt_log?: Json
+          attempts?: number
+          created_at?: string
+          function_name: string
+          id?: string
+          idempotency_key?: string | null
+          last_error_code?: string | null
+          last_error_message?: string | null
+          recipient_hash?: string | null
+          status: string
+          total_latency_ms?: number | null
+        }
+        Update: {
+          attempt_log?: Json
+          attempts?: number
+          created_at?: string
+          function_name?: string
+          id?: string
+          idempotency_key?: string | null
+          last_error_code?: string | null
+          last_error_message?: string | null
+          recipient_hash?: string | null
+          status?: string
+          total_latency_ms?: number | null
+        }
+        Relationships: []
+      }
       rate_limits: {
         Row: {
           action_type: string
