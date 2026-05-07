@@ -173,6 +173,10 @@ export function CVRequestDialog({ children }: CVRequestDialogProps) {
       setTimeout(() => {
         setIsSuccess(false);
         setRateLimit(null);
+        setStatus({ phase: "idle" });
+        setIdempotencyKey(
+          typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+        );
         setFormData({ name: "", email: "" });
       }, 300);
     }
