@@ -23,11 +23,21 @@ interface CVRequestDialogProps {
   children: React.ReactNode;
 }
 
+type SendStatus =
+  | { phase: "idle" }
+  | { phase: "sending" }
+  | { phase: "success"; deduped: boolean }
+  | { phase: "error"; reason: string };
+
 export function CVRequestDialog({ children }: CVRequestDialogProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [rateLimit, setRateLimit] = useState<{ retryAfter: number; endpoint: string } | null>(null);
+  const [status, setStatus] = useState<SendStatus>({ phase: "idle" });
+  const [idempotencyKey, setIdempotencyKey] = useState<string>(() =>
+    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+  );
   const [formData, setFormData] = useState({
     name: "",
     email: "",
