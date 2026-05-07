@@ -1,12 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendEmailWithRetry } from "../_shared/email-retry.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
-
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -113,47 +113,35 @@ serve(async (req) => {
 
     console.log(`Sending ${action} notification to:`, email.substring(0, 3) + "***");
 
-    const payload = JSON.stringify({
-      from: "Davor Mulalić <onboarding@resend.dev>",
-      to: ["mulalic71@gmail.com"],
-      reply_to: "mulalic.davor@outlook.com",
-      subject: `[CV Request — ${email}] ${subject}`,
-      html: htmlBody,
+    const result = await sendEmailWithRetry({
+      functionName: "notify-cv-approval",
+      recipientEmail: email,
+      idempotencyKey: `cv-${action}-${cvToken}`,
+      payload: {
+        from: "Davor Mulalić <onboarding@resend.dev>",
+        to: ["mulalic71@gmail.com"],
+        reply_to: "mulalic.davor@outlook.com",
+        subject: `[CV Request — ${email}] ${subject}`,
+        html: htmlBody,
+      },
     });
 
-    let res!: Response;
-    let resData: any;
-    const maxAttempts = 4;
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      res = await fetch(`${GATEWAY_URL}/emails`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-          "X-Connection-Api-Key": RESEND_API_KEY,
-        },
-        body: payload,
-      });
-      resData = await res.json().catch(() => ({}));
-      if (res.ok) break;
-      const retriable = res.status === 429 || res.status >= 500;
-      if (!retriable || attempt === maxAttempts) {
-        console.error("Resend error:", res.status, JSON.stringify(resData));
-        throw new Error(`Email send failed [${res.status}]`);
-      }
-      const retryAfterHeader = Number(res.headers.get("retry-after"));
-      const backoff = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
-        ? retryAfterHeader * 1000
-        : Math.min(2000, 250 * 2 ** (attempt - 1)) + Math.floor(Math.random() * 200);
-      console.warn(`Resend ${res.status} on attempt ${attempt}, retrying in ${backoff}ms`);
-      await new Promise((r) => setTimeout(r, backoff));
+    if (!result.ok) {
+      console.error("notify-cv-approval failed:", result.errorCode, result.errorMessage);
+      return new Response(
+        JSON.stringify({ error: "Failed to send notification" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } },
+      );
     }
 
-    console.log("CV notification email sent successfully");
-
     return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      JSON.stringify({
+        success: true,
+        attempts: result.attempts,
+        latency_ms: result.totalMs,
+        deduped: !!result.deduped,
+      }),
+      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } },
     );
   } catch (error: any) {
     console.error("Error in notify-cv-approval:", error.message);
