@@ -113,27 +113,40 @@ serve(async (req) => {
 
     console.log(`Sending ${action} notification to:`, email.substring(0, 3) + "***");
 
-    const res = await fetch(`${GATEWAY_URL}/emails`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": RESEND_API_KEY,
-      },
-      body: JSON.stringify({
-        from: "Davor Mulalić <onboarding@resend.dev>",
-        to: ["mulalic71@gmail.com"],
-        reply_to: "mulalic.davor@outlook.com",
-        subject: `[CV Request — ${email}] ${subject}`,
-        html: htmlBody,
-      }),
+    const payload = JSON.stringify({
+      from: "Davor Mulalić <onboarding@resend.dev>",
+      to: ["mulalic71@gmail.com"],
+      reply_to: "mulalic.davor@outlook.com",
+      subject: `[CV Request — ${email}] ${subject}`,
+      html: htmlBody,
     });
 
-    const resData = await res.json();
-
-    if (!res.ok) {
-      console.error("Resend error:", res.status, JSON.stringify(resData));
-      throw new Error(`Email send failed [${res.status}]`);
+    let res!: Response;
+    let resData: any;
+    const maxAttempts = 4;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      res = await fetch(`${GATEWAY_URL}/emails`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+          "X-Connection-Api-Key": RESEND_API_KEY,
+        },
+        body: payload,
+      });
+      resData = await res.json().catch(() => ({}));
+      if (res.ok) break;
+      const retriable = res.status === 429 || res.status >= 500;
+      if (!retriable || attempt === maxAttempts) {
+        console.error("Resend error:", res.status, JSON.stringify(resData));
+        throw new Error(`Email send failed [${res.status}]`);
+      }
+      const retryAfterHeader = Number(res.headers.get("retry-after"));
+      const backoff = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
+        ? retryAfterHeader * 1000
+        : Math.min(2000, 250 * 2 ** (attempt - 1)) + Math.floor(Math.random() * 200);
+      console.warn(`Resend ${res.status} on attempt ${attempt}, retrying in ${backoff}ms`);
+      await new Promise((r) => setTimeout(r, backoff));
     }
 
     console.log("CV notification email sent successfully");
