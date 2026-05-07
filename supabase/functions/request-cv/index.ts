@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendEmailWithRetry } from "../_shared/email-retry.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -121,57 +122,30 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("CV request created successfully");
 
-    // Send admin notification email via Lovable Connector Gateway (non-blocking)
+    // Send admin notification email via shared retry helper (non-blocking)
     try {
-      const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-      const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY_1") || Deno.env.get("RESEND_API_KEY");
-      if (LOVABLE_API_KEY && RESEND_API_KEY) {
-        const html = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h2 style="color: #1a1a1a; border-bottom: 2px solid #c8a870; padding-bottom: 10px;">New CV Download Request</h2>
-            <p><strong>From:</strong> ${name || "(no name)"} &lt;${email}&gt;</p>
-            <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
-            <p>Review and approve/deny in the Admin panel at <a href="https://davormulalic.com/admin">/admin</a>.</p>
-          </div>
-        `;
-        const payload = JSON.stringify({
+      const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #1a1a1a; border-bottom: 2px solid #c8a870; padding-bottom: 10px;">New CV Download Request</h2>
+          <p><strong>From:</strong> ${name || "(no name)"} &lt;${email}&gt;</p>
+          <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+          <p>Review and approve/deny in the Admin panel at <a href="https://davormulalic.com/admin">/admin</a>.</p>
+        </div>
+      `;
+      const result = await sendEmailWithRetry({
+        functionName: "request-cv",
+        recipientEmail: email,
+        idempotencyKey: `cv-request-notify-${cvRequest.id}`,
+        payload: {
           from: "CV Request <onboarding@resend.dev>",
           to: ["mulalic71@gmail.com"],
           reply_to: email,
           subject: `[New CV Request — ${email}]`,
           html,
-        });
-        let emailResp!: Response;
-        const maxAttempts = 4;
-        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-          emailResp = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-              "X-Connection-Api-Key": RESEND_API_KEY,
-            },
-            body: payload,
-          });
-          if (emailResp.ok) {
-            console.log("Admin notification email sent");
-            break;
-          }
-          const retriable = emailResp.status === 429 || emailResp.status >= 500;
-          if (!retriable || attempt === maxAttempts) {
-            const errText = await emailResp.text();
-            console.error("Admin notification email failed:", emailResp.status, errText);
-            break;
-          }
-          const retryAfterHeader = Number(emailResp.headers.get("retry-after"));
-          const backoff = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
-            ? retryAfterHeader * 1000
-            : Math.min(2000, 250 * 2 ** (attempt - 1)) + Math.floor(Math.random() * 200);
-          console.warn(`Resend ${emailResp.status} on attempt ${attempt}, retrying in ${backoff}ms`);
-          await new Promise((r) => setTimeout(r, backoff));
-        }
-      } else {
-        console.warn("Email keys not configured — skipping admin notification");
+        },
+      });
+      if (!result.ok) {
+        console.error("Admin notification failed:", result.errorCode, result.errorMessage);
       }
     } catch (notifyErr: any) {
       console.error("Admin notification error:", notifyErr.message);
