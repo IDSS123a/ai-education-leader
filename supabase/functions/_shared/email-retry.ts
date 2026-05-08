@@ -224,10 +224,11 @@ async function persistMetric(
   recipientHash: string | null,
   idempotencyKey: string | undefined,
   result: SendRetryResult,
+  providerMessageId: string | null,
 ): Promise<void> {
   if (!sb) return;
   try {
-    const row = {
+    const row: Record<string, unknown> = {
       function_name: functionName,
       recipient_hash: recipientHash,
       idempotency_key: idempotencyKey ?? null,
@@ -238,6 +239,10 @@ async function persistMetric(
       last_error_message: result.errorMessage ?? null,
       attempt_log: result.log,
     };
+    if (providerMessageId) {
+      row.provider_message_id = providerMessageId;
+      row.delivery_status = "sent";
+    }
     if (idempotencyKey) {
       await sb.from("email_send_metrics").upsert(row, { onConflict: "idempotency_key" });
     } else {
