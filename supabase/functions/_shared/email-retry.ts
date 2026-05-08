@@ -114,11 +114,24 @@ export async function sendEmailWithRetry(opts: SendOptions): Promise<SendRetryRe
       errorCode: "missing_keys",
       errorMessage: "LOVABLE_API_KEY or RESEND_API_KEY missing",
     };
-    await persistMetric(sb, functionName, recipientHash, idempotencyKey, result);
+    await persistMetric(sb, functionName, recipientHash, idempotencyKey, result, null);
     return result;
   }
 
-  const body = JSON.stringify(payload);
+  // Inject Resend `tags` so webhooks can correlate by idempotency_key + function.
+  const enrichedPayload: Record<string, unknown> = { ...payload };
+  if (idempotencyKey) {
+    const safeKey = idempotencyKey.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 256);
+    const safeFn = functionName.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 256);
+    const existing = Array.isArray((payload as any).tags) ? (payload as any).tags : [];
+    enrichedPayload.tags = [
+      ...existing,
+      { name: "idempotency_key", value: safeKey },
+      { name: "function_name", value: safeFn },
+    ];
+  }
+
+  const body = JSON.stringify(enrichedPayload);
   let lastStatus = 0;
   let lastBody: any = null;
   let lastErr: string | undefined;
@@ -163,7 +176,8 @@ export async function sendEmailWithRetry(opts: SendOptions): Promise<SendRetryRe
         body: parsed,
         log,
       };
-      await persistMetric(sb, functionName, recipientHash, idempotencyKey, result);
+      const providerMessageId = (parsed && (parsed.id || parsed.data?.id)) ?? null;
+      await persistMetric(sb, functionName, recipientHash, idempotencyKey, result, providerMessageId);
       return result;
     }
 
@@ -192,7 +206,7 @@ export async function sendEmailWithRetry(opts: SendOptions): Promise<SendRetryRe
     errorCode: lastStatus ? String(lastStatus) : "network_error",
     errorMessage: lastErr,
   };
-  await persistMetric(sb, functionName, recipientHash, idempotencyKey, result);
+  await persistMetric(sb, functionName, recipientHash, idempotencyKey, result, null);
   return result;
 }
 
@@ -210,10 +224,11 @@ async function persistMetric(
   recipientHash: string | null,
   idempotencyKey: string | undefined,
   result: SendRetryResult,
+  providerMessageId: string | null,
 ): Promise<void> {
   if (!sb) return;
   try {
-    const row = {
+    const row: Record<string, unknown> = {
       function_name: functionName,
       recipient_hash: recipientHash,
       idempotency_key: idempotencyKey ?? null,
@@ -224,6 +239,10 @@ async function persistMetric(
       last_error_message: result.errorMessage ?? null,
       attempt_log: result.log,
     };
+    if (providerMessageId) {
+      row.provider_message_id = providerMessageId;
+      row.delivery_status = "sent";
+    }
     if (idempotencyKey) {
       await sb.from("email_send_metrics").upsert(row, { onConflict: "idempotency_key" });
     } else {

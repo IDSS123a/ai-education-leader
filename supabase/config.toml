@@ -34,3 +34,6 @@ verify_jwt = false
 
 [functions.notify-cv-approval]
 verify_jwt = false
+
+[functions.resend-webhook]
+verify_jwt = false
