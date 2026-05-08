@@ -176,7 +176,8 @@ export async function sendEmailWithRetry(opts: SendOptions): Promise<SendRetryRe
         body: parsed,
         log,
       };
-      await persistMetric(sb, functionName, recipientHash, idempotencyKey, result);
+      const providerMessageId = (parsed && (parsed.id || parsed.data?.id)) ?? null;
+      await persistMetric(sb, functionName, recipientHash, idempotencyKey, result, providerMessageId);
       return result;
     }
 
@@ -205,7 +206,7 @@ export async function sendEmailWithRetry(opts: SendOptions): Promise<SendRetryRe
     errorCode: lastStatus ? String(lastStatus) : "network_error",
     errorMessage: lastErr,
   };
-  await persistMetric(sb, functionName, recipientHash, idempotencyKey, result);
+  await persistMetric(sb, functionName, recipientHash, idempotencyKey, result, null);
   return result;
 }
 
