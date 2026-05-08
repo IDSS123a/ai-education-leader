@@ -118,11 +118,15 @@ export type Database = {
           attempt_log: Json
           attempts: number
           created_at: string
+          delivery_events: Json
+          delivery_status: string | null
           function_name: string
           id: string
           idempotency_key: string | null
+          last_delivery_at: string | null
           last_error_code: string | null
           last_error_message: string | null
+          provider_message_id: string | null
           recipient_hash: string | null
           status: string
           total_latency_ms: number | null
@@ -131,11 +135,15 @@ export type Database = {
           attempt_log?: Json
           attempts?: number
           created_at?: string
+          delivery_events?: Json
+          delivery_status?: string | null
           function_name: string
           id?: string
           idempotency_key?: string | null
+          last_delivery_at?: string | null
           last_error_code?: string | null
           last_error_message?: string | null
+          provider_message_id?: string | null
           recipient_hash?: string | null
           status: string
           total_latency_ms?: number | null
@@ -144,11 +152,15 @@ export type Database = {
           attempt_log?: Json
           attempts?: number
           created_at?: string
+          delivery_events?: Json
+          delivery_status?: string | null
           function_name?: string
           id?: string
           idempotency_key?: string | null
+          last_delivery_at?: string | null
           last_error_code?: string | null
           last_error_message?: string | null
+          provider_message_id?: string | null
           recipient_hash?: string | null
           status?: string
           total_latency_ms?: number | null
