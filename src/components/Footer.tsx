@@ -47,7 +47,7 @@ export function Footer() {
             <a
               key={link.href}
               href={link.href}
-              className="text-background/70 dark:text-muted-foreground hover:text-background dark:hover:text-foreground transition-colors text-sm"
+              className="text-background/70 dark:text-muted-foreground hover:text-background dark:hover:text-foreground transition-colors text-sm rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground dark:focus-visible:ring-offset-card"
             >
               {link.label}
             </a>
@@ -60,7 +60,8 @@ export function Footer() {
             href="https://www.linkedin.com/in/davormulalic/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 bg-background/10 dark:bg-secondary hover:bg-background/20 dark:hover:bg-secondary/80 rounded-full transition-colors text-sm"
+            aria-label="Connect with Davor Mulalić on LinkedIn"
+            className="flex items-center gap-2 px-4 py-2 bg-background/10 dark:bg-secondary hover:bg-background/20 dark:hover:bg-secondary/80 rounded-full transition-colors text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground dark:focus-visible:ring-offset-card"
           >
             <Linkedin className="w-4 h-4" />
             Connect
