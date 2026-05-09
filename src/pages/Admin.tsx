@@ -523,17 +523,23 @@ export default function Admin() {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics">
-            <AnalyticsViewer />
+            <Suspense fallback={<TabFallback />}>
+              <AnalyticsViewer />
+            </Suspense>
           </TabsContent>
 
           {/* Email Metrics Tab */}
           <TabsContent value="emails">
-            <EmailMetricsViewer />
+            <Suspense fallback={<TabFallback />}>
+              <EmailMetricsViewer />
+            </Suspense>
           </TabsContent>
 
           {/* Audit Log Tab */}
           <TabsContent value="audit">
-            <AuditLogViewer />
+            <Suspense fallback={<TabFallback />}>
+              <AuditLogViewer />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </div>
