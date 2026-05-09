@@ -10,7 +10,7 @@ const CVButton = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLBu
     <button
       ref={ref}
       {...props}
-      className="flex items-center gap-2 px-4 py-2 bg-background/10 dark:bg-secondary hover:bg-background/20 dark:hover:bg-secondary/80 rounded-full transition-colors text-sm"
+      className="flex items-center gap-2 px-4 py-2 bg-background/10 dark:bg-secondary hover:bg-background/20 dark:hover:bg-secondary/80 rounded-full transition-colors text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground dark:focus-visible:ring-offset-card"
     >
       <Download className="w-4 h-4" />
       Download CV
