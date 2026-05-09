@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, Clock, RefreshCw, Shield, Mail, User, Calendar, Video, MessageSquare, LogOut, Loader2, ScrollText, BarChart3 } from "lucide-react";
@@ -9,10 +9,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { AuditLogViewer } from "@/components/AuditLogViewer";
-import { AnalyticsViewer } from "@/components/AnalyticsViewer";
 import { CVRequestsViewer } from "@/components/CVRequestsViewer";
-import { EmailMetricsViewer } from "@/components/EmailMetricsViewer";
+
+// Heavy viewers (charts / large tables) — only fetched when their tab is opened.
+const AuditLogViewer = lazy(() =>
+  import("@/components/AuditLogViewer").then((m) => ({ default: m.AuditLogViewer })),
+);
+const AnalyticsViewer = lazy(() =>
+  import("@/components/AnalyticsViewer").then((m) => ({ default: m.AnalyticsViewer })),
+);
+const EmailMetricsViewer = lazy(() =>
+  import("@/components/EmailMetricsViewer").then((m) => ({ default: m.EmailMetricsViewer })),
+);
+
+const TabFallback = () => (
+  <Card className="p-12 flex items-center justify-center">
+    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+  </Card>
+);
 
 interface CVRequest {
   id: string;
@@ -509,17 +523,23 @@ export default function Admin() {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics">
-            <AnalyticsViewer />
+            <Suspense fallback={<TabFallback />}>
+              <AnalyticsViewer />
+            </Suspense>
           </TabsContent>
 
           {/* Email Metrics Tab */}
           <TabsContent value="emails">
-            <EmailMetricsViewer />
+            <Suspense fallback={<TabFallback />}>
+              <EmailMetricsViewer />
+            </Suspense>
           </TabsContent>
 
           {/* Audit Log Tab */}
           <TabsContent value="audit">
-            <AuditLogViewer />
+            <Suspense fallback={<TabFallback />}>
+              <AuditLogViewer />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </div>
