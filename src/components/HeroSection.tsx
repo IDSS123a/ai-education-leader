@@ -191,7 +191,8 @@ export function HeroSection() {
                   alt="Davor Mulalić - Executive Leader & AI Strategist"
                   className="w-full h-full object-cover"
                   loading="eager"
-                  fetchPriority="high"
+                  decoding="async"
+                  {...({ fetchpriority: "high" } as any)}
                 />
               </div>
             </div>
