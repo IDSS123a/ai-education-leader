@@ -145,7 +145,9 @@ interface MetricBarGroupProps {
 
 export function MetricBarGroup({ metrics, className = "" }: MetricBarGroupProps) {
   return (
-    <div className={`flex items-end justify-center gap-6 md:gap-8 ${className}`}>
+    <div
+      className={`grid grid-cols-2 sm:flex sm:items-end sm:justify-center gap-x-4 gap-y-6 sm:gap-6 md:gap-8 place-items-center w-full overflow-hidden ${className}`}
+    >
       {metrics.map((m, i) => (
         <MetricBar3D
           key={i}
